@@ -1,0 +1,653 @@
+<title>Gundam TCG Deck Matcher</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@400;500&display=swap">
+
+<style>
+/* ===== TOKENS ===== */
+:root {
+  --bg:#080c14; --surf:#0f1724; --surf-2:#172030; --surf-3:#1f2d42;
+  --bdr:#243450; --bdr-hi:#2e4268; --fg:#d4e6f8; --fg-2:#7a9ec0; --fg-3:#4a6a88;
+  --accent:#e8a020; --accent-dim:rgba(232,160,32,.13);
+  --pos:#44cc77; --pos-dim:rgba(68,204,119,.12);
+  --neg:#ff5555; --neg-dim:rgba(255,85,85,.12);
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg:#eef2f8; --surf:#fff; --surf-2:#f3f7fd; --surf-3:#e6edf8;
+    --bdr:#ccd8ec; --bdr-hi:#b8c8e4; --fg:#0e1e36; --fg-2:#3a5878; --fg-3:#7090b4;
+    --accent:#b07010; --accent-dim:rgba(176,112,16,.1);
+    --pos:#1a9950; --pos-dim:rgba(26,153,80,.1);
+    --neg:#cc2222; --neg-dim:rgba(204,34,34,.1);
+    color-scheme: light;
+  }
+}
+:root[data-theme="light"] {
+  --bg:#eef2f8; --surf:#fff; --surf-2:#f3f7fd; --surf-3:#e6edf8;
+  --bdr:#ccd8ec; --bdr-hi:#b8c8e4; --fg:#0e1e36; --fg-2:#3a5878; --fg-3:#7090b4;
+  --accent:#b07010; --accent-dim:rgba(176,112,16,.1);
+  --pos:#1a9950; --pos-dim:rgba(26,153,80,.1);
+  --neg:#cc2222; --neg-dim:rgba(204,34,34,.1);
+  color-scheme: light;
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+body {
+  font-family:'Inter',system-ui,sans-serif;
+  background:var(--bg); color:var(--fg);
+  min-height:100%; display:flex; flex-direction:column;
+}
+
+/* ===== HEADER ===== */
+.site-header {
+  position:sticky; top:env(safe-area-inset-top,0px); z-index:100;
+  background:var(--surf); border-bottom:1px solid var(--bdr);
+  padding:0 max(16px,env(safe-area-inset-left,0px));
+  display:flex; align-items:center; gap:16px; height:52px;
+}
+body::before {
+  content:""; position:fixed; inset:0 0 auto;
+  height:env(safe-area-inset-top,0px); background:var(--surf); z-index:101;
+}
+.site-logo {
+  font-family:'Rajdhani',sans-serif; font-weight:700; font-size:1.1rem;
+  letter-spacing:.05em; color:var(--accent); text-transform:uppercase;
+  text-decoration:none; white-space:nowrap;
+}
+.site-logo span{color:var(--fg-2);font-weight:500}
+.header-nav{display:flex;gap:4px;margin-left:auto}
+.nav-link {
+  font-size:.8rem; font-weight:500; color:var(--fg-2);
+  text-decoration:none; padding:4px 10px; border-radius:4px;
+  transition:color .15s,background .15s; white-space:nowrap;
+}
+.nav-link:hover{color:var(--fg);background:var(--surf-2)}
+.nav-link.active{color:var(--accent)}
+.theme-btn {
+  background:none; border:1px solid var(--bdr); color:var(--fg-3);
+  width:30px; height:30px; border-radius:6px; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  font-size:14px; flex-shrink:0; transition:color .15s,border-color .15s;
+}
+.theme-btn:hover{color:var(--accent);border-color:var(--accent)}
+
+/* ===== TABS ===== */
+.tab-bar {
+  background:var(--surf); border-bottom:1px solid var(--bdr);
+  padding:0 max(16px,env(safe-area-inset-left,0px));
+  display:flex; gap:0; overflow-x:auto;
+}
+.tab-bar::-webkit-scrollbar{display:none}
+.tab-btn {
+  padding:14px 18px; font-family:'Rajdhani',sans-serif; font-weight:600;
+  font-size:.88rem; letter-spacing:.04em; text-transform:uppercase;
+  color:var(--fg-3); background:none; border:none; cursor:pointer;
+  border-bottom:2px solid transparent; transition:color .15s,border-color .15s;
+  white-space:nowrap;
+}
+.tab-btn:hover{color:var(--fg-2)}
+.tab-btn.active{color:var(--accent);border-bottom-color:var(--accent)}
+
+/* ===== CONTROLS ===== */
+.controls {
+  padding:12px max(16px,env(safe-area-inset-left,0px));
+  border-bottom:1px solid var(--bdr); background:var(--bg);
+  display:flex; flex-direction:column; gap:10px;
+}
+.search-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.search-wrap{position:relative;flex:1;min-width:200px}
+.search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--fg-3);font-size:14px;pointer-events:none}
+.search-input {
+  width:100%; background:var(--surf); border:1px solid var(--bdr); border-radius:6px;
+  padding:8px 10px 8px 34px; font-family:'Inter',sans-serif; font-size:.85rem;
+  color:var(--fg); outline:none; transition:border-color .15s;
+}
+.search-input::placeholder{color:var(--fg-3)}
+.search-input:focus{border-color:var(--accent)}
+.filter-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.filter-label{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--fg-3);white-space:nowrap;min-width:36px}
+.chips{display:flex;gap:5px;flex-wrap:wrap}
+.chip {
+  display:inline-flex;align-items:center;gap:4px;padding:3px 9px;
+  border-radius:20px;border:1px solid var(--bdr);background:var(--surf);
+  color:var(--fg-3);font-size:.72rem;font-weight:500;cursor:pointer;
+  transition:all .15s;white-space:nowrap;user-select:none;
+}
+.chip:hover{border-color:var(--bdr-hi);color:var(--fg-2)}
+.chip.active{background:var(--accent-dim);border-color:var(--accent);color:var(--accent)}
+.color-dot{display:inline-block;width:8px;height:8px;border-radius:50%;vertical-align:middle}
+.color-dot.white-dot{box-shadow:0 0 0 1px var(--bdr-hi)}
+
+/* Almost There threshold control */
+.threshold-row {
+  display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+  padding:12px max(16px,env(safe-area-inset-left,0px));
+  border-bottom:1px solid var(--bdr); background:var(--bg);
+}
+.threshold-label{font-size:.85rem;color:var(--fg-2);white-space:nowrap}
+.threshold-slider{flex:1;min-width:120px;max-width:260px;accent-color:var(--accent)}
+.threshold-num {
+  font-family:'Rajdhani',sans-serif;font-weight:700;font-size:1.1rem;
+  color:var(--accent);min-width:26px;text-align:center;
+}
+.threshold-sub{font-size:.75rem;color:var(--fg-3)}
+
+/* ===== RESULTS COUNT ===== */
+.results-bar {
+  padding:8px max(16px,env(safe-area-inset-left,0px));
+  font-size:.78rem; color:var(--fg-3);
+  border-bottom:1px solid var(--bdr);
+}
+.results-bar b{color:var(--fg-2)}
+
+/* ===== MAIN / SCROLL ===== */
+.main{flex:1;overflow-y:auto;padding:16px max(16px,env(safe-area-inset-left,0px))}
+.main::-webkit-scrollbar{width:6px}
+.main::-webkit-scrollbar-track{background:transparent}
+.main::-webkit-scrollbar-thumb{background:var(--bdr-hi);border-radius:3px}
+
+/* ===== DECK GRID ===== */
+.deck-grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
+  gap:12px;
+}
+
+/* ===== DECK CARD ===== */
+.deck-card {
+  background:var(--surf); border:1px solid var(--bdr); border-radius:10px;
+  overflow:hidden; cursor:pointer; transition:border-color .15s;
+}
+.deck-card:hover{border-color:var(--bdr-hi)}
+.deck-card.expanded{border-color:var(--accent)}
+.deck-card.ready{border-color:var(--pos)}
+
+.deck-header{padding:14px 16px 10px;display:flex;flex-direction:column;gap:8px}
+.deck-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.deck-name{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:1rem;color:var(--fg);line-height:1.2;flex:1}
+.deck-expand-icon{color:var(--fg-3);font-size:12px;flex-shrink:0;margin-top:2px;transition:transform .2s}
+.deck-card.expanded .deck-expand-icon{transform:rotate(180deg)}
+
+.deck-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.archetype-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.archetype-name{font-size:.72rem;color:var(--fg-3)}
+.color-dots{display:flex;gap:3px}
+
+/* Completion bar */
+.completion-wrap{display:flex;flex-direction:column;gap:4px}
+.completion-row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.completion-label{font-size:.72rem;color:var(--fg-3)}
+.completion-val{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:.85rem}
+.completion-bar-bg{height:5px;background:var(--surf-3);border-radius:3px;overflow:hidden}
+.completion-bar-fill{height:100%;border-radius:3px;transition:width .3s}
+
+.deck-status{font-size:.75rem;font-weight:500}
+.deck-status.ready{color:var(--pos)}
+.deck-status.close{color:var(--accent)}
+.deck-status.far{color:var(--fg-3)}
+
+/* ===== DECK EXPAND BODY ===== */
+.deck-body{border-top:1px solid var(--bdr);padding:0}
+.deck-body.hidden{display:none}
+
+.section-head {
+  padding:8px 16px;
+  font-family:'Rajdhani',sans-serif;font-weight:600;font-size:.7rem;
+  letter-spacing:.09em;text-transform:uppercase;
+  background:var(--surf-2);
+  display:flex;align-items:center;gap:6px;
+}
+.section-head.need{color:var(--neg)}
+.section-head.have{color:var(--pos)}
+.section-count{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:18px;height:18px;border-radius:50%;font-size:.65rem;font-weight:700;
+}
+.section-count.need{background:var(--neg-dim);color:var(--neg)}
+.section-count.have{background:var(--pos-dim);color:var(--pos)}
+
+.card-row {
+  display:flex;align-items:center;gap:10px;
+  padding:6px 16px; border-bottom:1px solid var(--bdr); font-size:.8rem;
+}
+.card-row:last-child{border-bottom:none}
+.card-row-icon{font-size:12px;flex-shrink:0;width:14px;text-align:center}
+.card-id{font-family:'Rajdhani',sans-serif;font-weight:600;font-size:.75rem;color:var(--fg-3);white-space:nowrap;min-width:72px}
+.card-name{color:var(--fg);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.card-qty{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.8rem;white-space:nowrap}
+.card-qty.have{color:var(--pos)}
+.card-qty.need{color:var(--neg)}
+.card-qty.partial{color:var(--accent)}
+
+/* Shopping list mode */
+.shop-badge {
+  display:inline-flex;align-items:center;gap:4px;
+  padding:1px 7px;border-radius:20px;font-size:.65rem;font-weight:600;
+  background:var(--neg-dim);color:var(--neg);border:1px solid rgba(255,85,85,.3);
+  white-space:nowrap;
+}
+
+/* ===== EMPTY STATE ===== */
+.empty {
+  text-align:center;padding:60px 20px;color:var(--fg-3);
+  grid-column:1/-1;
+}
+.empty-icon{font-size:40px;margin-bottom:12px;opacity:.4}
+.empty-title{font-family:'Rajdhani',sans-serif;font-size:1.2rem;font-weight:600;color:var(--fg-2);margin-bottom:8px}
+.empty-sub{font-size:.85rem;line-height:1.6}
+.empty-link{color:var(--accent);text-decoration:none}
+.empty-link:hover{text-decoration:underline}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width:600px){
+  .site-logo span{display:none}
+  .tab-btn{padding:12px 12px;font-size:.8rem}
+  .deck-grid{grid-template-columns:1fr}
+}
+@media(prefers-reduced-motion:reduce){.deck-expand-icon,.completion-bar-fill,.chip,.deck-card{transition:none}}
+</style>
+
+<!-- HEADER -->
+<header class="site-header">
+  <a href="../" class="site-logo">GUNTCG <span>Database</span></a>
+  <nav class="header-nav">
+    <a href="../" class="nav-link">Home</a>
+    <a href="../decks/" class="nav-link">Decks</a>
+    <a href="../collection/" class="nav-link">Collection</a>
+    <a href="./" class="nav-link active">Matcher</a>
+  </nav>
+  <button class="theme-btn" id="themeBtn" title="Toggle theme" aria-label="Toggle theme">☀</button>
+</header>
+
+<!-- TABS -->
+<div class="tab-bar">
+  <button class="tab-btn active" data-tab="pick">🗂 Pick a Deck</button>
+  <button class="tab-btn" data-tab="build">✅ Build Now</button>
+  <button class="tab-btn" data-tab="almost">🛒 Almost There</button>
+</div>
+
+<!-- CONTROLS (pick + almost tabs) -->
+<div id="pickControls" class="controls">
+  <div class="search-row">
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input class="search-input" id="searchInput" type="search"
+        placeholder="Search deck name or card…" autocomplete="off" spellcheck="false">
+    </div>
+  </div>
+  <div class="filter-row">
+    <span class="filter-label">Type</span>
+    <div class="chips" id="archetypeChips"></div>
+  </div>
+  <div class="filter-row">
+    <span class="filter-label">Color</span>
+    <div class="chips" id="colorChips"></div>
+  </div>
+</div>
+
+<!-- THRESHOLD (almost tab only) -->
+<div id="thresholdRow" class="threshold-row" style="display:none">
+  <span class="threshold-label">Show decks missing</span>
+  <input type="range" class="threshold-slider" id="thresholdSlider" min="1" max="20" value="10">
+  <span class="threshold-num" id="thresholdNum">10</span>
+  <span class="threshold-label">or fewer copies</span>
+  <span class="threshold-sub">(total copies short, not unique cards)</span>
+</div>
+
+<!-- RESULTS BAR -->
+<div class="results-bar" id="resultsBar"></div>
+
+<!-- MAIN -->
+<main class="main" id="mainArea">
+  <div class="deck-grid" id="deckGrid">
+    <div class="empty">
+      <div class="empty-icon">🔄</div>
+      <div class="empty-title">Loading…</div>
+    </div>
+  </div>
+</main>
+
+<script>
+// ===== CONSTANTS =====
+const STORAGE_KEY = 'guntcg-collection';
+const COLOR_DOTS = {Blue:'#4a9eff',Red:'#ff5a5a',Green:'#44cc77',Purple:'#bb66ff',Yellow:'#ffcc33',White:'#e8e8e8'};
+const ARCHETYPE_COLORS = {
+  'Deploy Damage':'#ff7744','Link Spike':'#4a9eff','Control Draw':'#aa55ff',
+  'Tempo Aggro':'#44cc66','Board Synergy':'#22cccc','Late Spike':'#ffaa22',
+  'Trash Engine':'#77aa55','Repair Tank':'#8890b8'
+};
+
+// ===== STATE =====
+let allDecks = [];
+let collection = {};
+let deckStats = []; // [{deck, missing, pct, missingCards, haveCards}]
+let activeTab = 'pick';
+let activeArchetypes = new Set();
+let activeColors = new Set();
+let searchQuery = '';
+let threshold = 10;
+let expandedDeck = null;
+
+// ===== INIT =====
+async function init() {
+  loadCollection();
+  let res;
+  try { res = await fetch('data/decks.json'); } catch(e) { res = null; }
+  if (!res || !res.ok) res = await fetch('../data/decks.json');
+  allDecks = await res.json();
+  computeStats();
+  buildFilters();
+  renderTab();
+}
+
+function loadCollection() {
+  try { collection = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); }
+  catch(e) { collection = {}; }
+}
+
+// ===== COMPUTE STATS =====
+function computeStats() {
+  deckStats = allDecks.map(deck => {
+    const cards = deck.cards || [];
+    let totalNeeded = 0, totalHave = 0;
+    const missingCards = [], haveCards = [];
+    cards.forEach(c => {
+      const owned = collection[c.id] || 0;
+      const needed = c.qty || 1;
+      totalNeeded += needed;
+      const haveAmt = Math.min(owned, needed);
+      totalHave += haveAmt;
+      const short = needed - haveAmt;
+      if (short > 0) {
+        missingCards.push({id: c.id, name: c.name, needed, owned, short});
+      } else {
+        haveCards.push({id: c.id, name: c.name, needed, owned});
+      }
+    });
+    const missing = totalNeeded - totalHave;
+    const pct = totalNeeded > 0 ? Math.round((totalHave / totalNeeded) * 100) : 100;
+    return {deck, missing, pct, missingCards, haveCards, totalNeeded, totalHave};
+  });
+}
+
+// ===== FILTERS =====
+function buildFilters() {
+  const archetypes = [...new Set(allDecks.map(d => d.archetype).filter(Boolean))].sort();
+  const archEl = document.getElementById('archetypeChips');
+  archetypes.forEach(a => {
+    const chip = document.createElement('button');
+    chip.className = 'chip'; chip.dataset.val = a;
+    const dot = document.createElement('span');
+    dot.className = 'archetype-dot';
+    dot.style.cssText = `background:${ARCHETYPE_COLORS[a]||'#888'};width:8px;height:8px;border-radius:50%;display:inline-block`;
+    chip.appendChild(dot);
+    chip.appendChild(document.createTextNode(' ' + a));
+    chip.addEventListener('click', () => {
+      if (activeArchetypes.has(a)) { activeArchetypes.delete(a); chip.classList.remove('active'); }
+      else { activeArchetypes.add(a); chip.classList.add('active'); }
+      renderTab();
+    });
+    archEl.appendChild(chip);
+  });
+
+  const colorEl = document.getElementById('colorChips');
+  ['Blue','Red','Green','Purple','Yellow','White'].forEach(c => {
+    const chip = document.createElement('button');
+    chip.className = 'chip'; chip.dataset.val = c;
+    const dot = document.createElement('span');
+    dot.className = 'color-dot' + (c === 'White' ? ' white-dot' : '');
+    dot.style.cssText = `background:${COLOR_DOTS[c]||'#888'}`;
+    chip.appendChild(dot);
+    chip.appendChild(document.createTextNode(' ' + c));
+    chip.addEventListener('click', () => {
+      if (activeColors.has(c)) { activeColors.delete(c); chip.classList.remove('active'); }
+      else { activeColors.add(c); chip.classList.add('active'); }
+      renderTab();
+    });
+    colorEl.appendChild(chip);
+  });
+}
+
+// ===== FILTER LOGIC =====
+function filteredStats() {
+  const q = searchQuery.toLowerCase().trim();
+  return deckStats.filter(({deck, missingCards, haveCards}) => {
+    if (activeArchetypes.size > 0 && !activeArchetypes.has(deck.archetype)) return false;
+    if (activeColors.size > 0) {
+      const deckColors = (deck.colors || '').split('/').map(s => s.trim());
+      if (!deckColors.some(c => activeColors.has(c))) return false;
+    }
+    if (q) {
+      const nameMatch = deck.name.toLowerCase().includes(q);
+      const cardMatch = [...missingCards, ...haveCards].some(c =>
+        c.id.toLowerCase().includes(q) || c.name.toLowerCase().includes(q)
+      );
+      if (!nameMatch && !cardMatch) return false;
+    }
+    return true;
+  });
+}
+
+// ===== RENDER TAB =====
+function renderTab() {
+  const pickCtrl = document.getElementById('pickControls');
+  const threshRow = document.getElementById('thresholdRow');
+  const grid = document.getElementById('deckGrid');
+  const resultsBar = document.getElementById('resultsBar');
+
+  // Show/hide controls
+  pickCtrl.style.display = (activeTab === 'pick' || activeTab === 'almost') ? '' : 'none';
+  threshRow.style.display = activeTab === 'almost' ? '' : 'none';
+
+  let stats = filteredStats();
+
+  if (activeTab === 'build') {
+    stats = stats.filter(s => s.missing === 0);
+    stats.sort((a, b) => a.deck.name.localeCompare(b.deck.name));
+    resultsBar.innerHTML = `<b>${stats.length}</b> deck${stats.length === 1 ? '' : 's'} you can build right now`;
+  } else if (activeTab === 'almost') {
+    stats = stats.filter(s => s.missing > 0 && s.missing <= threshold);
+    stats.sort((a, b) => a.missing - b.missing);
+    resultsBar.innerHTML = `<b>${stats.length}</b> deck${stats.length === 1 ? '' : 's'} within <b>${threshold}</b> copies of complete`;
+  } else {
+    stats.sort((a, b) => b.pct - a.pct || a.deck.name.localeCompare(b.deck.name));
+    resultsBar.innerHTML = `<b>${stats.length}</b> deck${stats.length === 1 ? '' : 's'} · your collection covers <b>${collectionCoverage()}%</b> of all tracked decks on average`;
+  }
+
+  if (stats.length === 0) {
+    grid.innerHTML = emptyHTML();
+    return;
+  }
+
+  grid.innerHTML = '';
+  stats.forEach(s => {
+    grid.appendChild(buildDeckCard(s));
+  });
+}
+
+function collectionCoverage() {
+  if (!deckStats.length) return 0;
+  const avg = deckStats.reduce((sum, s) => sum + s.pct, 0) / deckStats.length;
+  return Math.round(avg);
+}
+
+// ===== DECK CARD =====
+function buildDeckCard(s) {
+  const {deck, missing, pct, missingCards, haveCards} = s;
+  const isReady = missing === 0;
+  const isClose = !isReady && missing <= threshold;
+
+  const card = document.createElement('div');
+  card.className = 'deck-card' + (isReady ? ' ready' : '');
+  card.dataset.name = deck.name;
+
+  // Color of completion bar
+  const barColor = isReady ? 'var(--pos)' : pct >= 80 ? 'var(--accent)' : 'var(--fg-3)';
+
+  const deckColors = (deck.colors || '').split('/').map(s => s.trim());
+  const colorDotsHTML = deckColors
+    .filter(c => COLOR_DOTS[c])
+    .map(c => `<span class="color-dot${c === 'White' ? ' white-dot' : ''}" style="background:${COLOR_DOTS[c]};width:8px;height:8px;border-radius:50%;display:inline-block"></span>`)
+    .join('');
+
+  const statusText = isReady
+    ? '<span class="deck-status ready">✓ Ready to build</span>'
+    : `<span class="deck-status ${isClose ? 'close' : 'far'}">Missing <b>${missing}</b> cop${missing === 1 ? 'y' : 'ies'}</span>`;
+
+  const archetypeColor = ARCHETYPE_COLORS[deck.archetype] || '#888';
+
+  card.innerHTML = `
+    <div class="deck-header">
+      <div class="deck-top">
+        <div class="deck-name">${escHtml(deck.name)}</div>
+        <span class="deck-expand-icon">▼</span>
+      </div>
+      <div class="deck-meta">
+        <span class="archetype-dot" style="background:${archetypeColor}"></span>
+        <span class="archetype-name">${escHtml(deck.archetype || '')}</span>
+        <span style="color:var(--bdr-hi)">·</span>
+        <div class="color-dots">${colorDotsHTML}</div>
+        <span style="color:var(--bdr-hi)">·</span>
+        <span style="font-size:.72rem;color:var(--fg-3)">${deck.card_count || '—'} cards</span>
+      </div>
+      <div class="completion-wrap">
+        <div class="completion-row">
+          <span class="completion-label">${s.totalHave}/${s.totalNeeded} copies owned</span>
+          ${statusText}
+        </div>
+        <div class="completion-bar-bg">
+          <div class="completion-bar-fill" style="width:${pct}%;background:${barColor}"></div>
+        </div>
+      </div>
+    </div>
+    <div class="deck-body hidden" id="body-${esc(deck.name)}">
+      ${buildDeckBody(s)}
+    </div>
+  `;
+
+  card.querySelector('.deck-header').addEventListener('click', () => toggleExpand(card, deck.name));
+  return card;
+}
+
+function toggleExpand(card, name) {
+  const body = card.querySelector('.deck-body');
+  const isOpen = !body.classList.contains('hidden');
+  // Close all
+  document.querySelectorAll('.deck-body').forEach(b => b.classList.add('hidden'));
+  document.querySelectorAll('.deck-card').forEach(c => c.classList.remove('expanded'));
+  document.querySelectorAll('.deck-expand-icon').forEach(i => i.style.transform = '');
+  if (!isOpen) {
+    body.classList.remove('hidden');
+    card.classList.add('expanded');
+    card.querySelector('.deck-expand-icon').style.transform = 'rotate(180deg)';
+  }
+}
+
+function buildDeckBody(s) {
+  const {missingCards, haveCards, deck} = s;
+  let html = '';
+
+  if (missingCards.length > 0) {
+    html += `<div class="section-head need">
+      <span>Need</span>
+      <span class="section-count need">${missingCards.length}</span>
+    </div>`;
+    missingCards.forEach(c => {
+      const partialOwn = c.owned > 0;
+      html += `<div class="card-row">
+        <span class="card-row-icon">✗</span>
+        <span class="card-id">${escHtml(c.id)}</span>
+        <span class="card-name">${escHtml(c.name)}</span>
+        <span class="card-qty ${partialOwn ? 'partial' : 'need'}">
+          ${partialOwn ? `${c.owned}/${c.needed}` : `×${c.needed}`}
+          ${c.short > 0 ? `<span class="shop-badge">−${c.short}</span>` : ''}
+        </span>
+      </div>`;
+    });
+  }
+
+  if (haveCards.length > 0) {
+    html += `<div class="section-head have">
+      <span>Have</span>
+      <span class="section-count have">${haveCards.length}</span>
+    </div>`;
+    haveCards.forEach(c => {
+      html += `<div class="card-row">
+        <span class="card-row-icon" style="color:var(--pos)">✓</span>
+        <span class="card-id">${escHtml(c.id)}</span>
+        <span class="card-name">${escHtml(c.name)}</span>
+        <span class="card-qty have">×${c.needed}</span>
+      </div>`;
+    });
+  }
+
+  return html || '<div class="card-row" style="color:var(--fg-3);justify-content:center">No card data</div>';
+}
+
+function emptyHTML() {
+  if (activeTab === 'build') return `<div class="empty">
+    <div class="empty-icon">📦</div>
+    <div class="empty-title">No buildable decks yet</div>
+    <div class="empty-sub">Add more cards to your <a class="empty-link" href="../collection/">collection</a> to unlock decks you can build right now.</div>
+  </div>`;
+  if (activeTab === 'almost') return `<div class="empty">
+    <div class="empty-icon">🛒</div>
+    <div class="empty-title">Nothing within ${threshold} copies</div>
+    <div class="empty-sub">Try raising the threshold slider, or build out your <a class="empty-link" href="../collection/">collection</a> first.</div>
+  </div>`;
+  return `<div class="empty">
+    <div class="empty-icon">🤖</div>
+    <div class="empty-title">No decks match</div>
+    <div class="empty-sub">Try adjusting your filters.</div>
+  </div>`;
+}
+
+// ===== EVENTS =====
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    activeTab = btn.dataset.tab;
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b === btn));
+    renderTab();
+  });
+});
+
+document.getElementById('searchInput').addEventListener('input', e => {
+  searchQuery = e.target.value;
+  renderTab();
+});
+
+const slider = document.getElementById('thresholdSlider');
+const threshNum = document.getElementById('thresholdNum');
+slider.addEventListener('input', () => {
+  threshold = parseInt(slider.value);
+  threshNum.textContent = threshold;
+  renderTab();
+});
+
+// ===== UTILS =====
+function escHtml(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function esc(s) { return String(s||'').replace(/[^\w-]/g,'_'); }
+
+// ===== THEME =====
+const themeBtn = document.getElementById('themeBtn');
+let savedTheme = null;
+try { savedTheme = localStorage.getItem('guntcg-theme'); } catch(e) {}
+if (savedTheme) { document.documentElement.setAttribute('data-theme', savedTheme); themeBtn.textContent = savedTheme === 'dark' ? '☀' : '🌙'; }
+themeBtn.addEventListener('click', () => {
+  const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  themeBtn.textContent = next === 'dark' ? '☀' : '🌙';
+  try { localStorage.setItem('guntcg-theme', next); } catch(e) {}
+});
+
+// ===== START =====
+init().catch(err => {
+  document.getElementById('deckGrid').innerHTML = `<div class="empty">
+    <div class="empty-icon">⚠️</div>
+    <div class="empty-title">Failed to load</div>
+    <div class="empty-sub">${err.message}</div>
+  </div>`;
+});
+</script>
