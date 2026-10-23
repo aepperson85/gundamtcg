@@ -1,0 +1,761 @@
+<title>Gundam TCG Deck Browser</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@400;500&display=swap">
+
+<style>
+/* ===== TOKENS: Cockpit HUD palette ===== */
+:root {
+  --bg:         #080c14;
+  --surf:       #0f1724;
+  --surf-2:     #172030;
+  --surf-3:     #1f2d42;
+  --bdr:        #243450;
+  --bdr-hi:     #2e4268;
+  --fg:         #d4e6f8;
+  --fg-2:       #7a9ec0;
+  --fg-3:       #4a6a88;
+  --accent:     #e8a020;
+  --accent-dim: rgba(232,160,32,.13);
+  /* card colors */
+  --cB:#4a9eff; --cR:#ff5a5a; --cG:#44cc77; --cP:#bb66ff; --cY:#ffcc33;
+  /* archetypes */
+  --aDD:#ff7744; --aLS:#4a9eff; --aCD:#aa55ff; --aTA:#44cc66;
+  --aBS:#22cccc; --aLSp:#ffaa22; --aTE:#77aa55; --aRT:#8890b8;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg:#eef2f8; --surf:#fff; --surf-2:#f3f7fd; --surf-3:#e6edf8;
+    --bdr:#ccd8ec; --bdr-hi:#b8c8e4; --fg:#0e1e36; --fg-2:#3a5878; --fg-3:#7090b4;
+    --accent:#b07010; --accent-dim:rgba(176,112,16,.1);
+    color-scheme: light;
+  }
+}
+:root[data-theme="light"] {
+  --bg:#eef2f8; --surf:#fff; --surf-2:#f3f7fd; --surf-3:#e6edf8;
+  --bdr:#ccd8ec; --bdr-hi:#b8c8e4; --fg:#0e1e36; --fg-2:#3a5878; --fg-3:#7090b4;
+  --accent:#b07010; --accent-dim:rgba(176,112,16,.1);
+  color-scheme: light;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ===== HEADER ===== */
+.site-header {
+  position: sticky;
+  top: env(safe-area-inset-top, 0px);
+  z-index: 100;
+  background: var(--surf);
+  border-bottom: 1px solid var(--bdr);
+  padding: 0 max(16px, env(safe-area-inset-left, 0px));
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  height: 52px;
+}
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0 0 auto;
+  height: env(safe-area-inset-top, 0px);
+  background: var(--surf);
+  z-index: 101;
+}
+.site-logo {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: 1.1rem;
+  letter-spacing: .05em;
+  color: var(--accent);
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.site-logo span { color: var(--fg-2); font-weight: 500; }
+.header-nav { display: flex; gap: 4px; margin-left: auto; }
+.nav-link {
+  font-size: .8rem;
+  font-weight: 500;
+  color: var(--fg-2);
+  text-decoration: none;
+  padding: 4px 10px;
+  border-radius: 4px;
+  white-space: nowrap;
+  transition: color .15s, background .15s;
+}
+.nav-link:hover, .nav-link.active { color: var(--fg); background: var(--surf-2); }
+.nav-link.active { color: var(--accent); }
+.theme-btn {
+  margin-left: 8px;
+  background: none;
+  border: 1px solid var(--bdr);
+  color: var(--fg-3);
+  width: 30px; height: 30px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+  transition: color .15s, border-color .15s;
+}
+.theme-btn:hover { color: var(--accent); border-color: var(--accent); }
+
+/* ===== MAIN LAYOUT ===== */
+.main { flex: 1; padding: 20px max(16px, env(safe-area-inset-right, 0px)) 40px max(16px, env(safe-area-inset-left, 0px)); max-width: 1280px; width: 100%; margin: 0 auto; }
+
+/* ===== SEARCH BAR ===== */
+.search-wrap {
+  position: relative;
+  margin-bottom: 16px;
+}
+.search-icon {
+  position: absolute;
+  left: 14px; top: 50%; transform: translateY(-50%);
+  color: var(--fg-3);
+  pointer-events: none;
+  font-size: 16px;
+}
+.search-input {
+  width: 100%;
+  background: var(--surf);
+  border: 1px solid var(--bdr);
+  border-radius: 8px;
+  padding: 10px 12px 10px 42px;
+  font-family: 'Inter', sans-serif;
+  font-size: .95rem;
+  color: var(--fg);
+  outline: none;
+  transition: border-color .15s;
+}
+.search-input::placeholder { color: var(--fg-3); }
+.search-input:focus { border-color: var(--accent); }
+.search-clear {
+  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+  background: none; border: none; color: var(--fg-3);
+  cursor: pointer; font-size: 16px; padding: 4px;
+  display: none;
+}
+.search-clear:hover { color: var(--fg); }
+
+/* ===== FILTERS ===== */
+.filters { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+.filter-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.filter-label {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 600;
+  font-size: .75rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--fg-3);
+  white-space: nowrap;
+  min-width: 72px;
+}
+.chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 1px solid var(--bdr);
+  background: var(--surf);
+  color: var(--fg-2);
+  font-size: .8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all .15s;
+  white-space: nowrap;
+  user-select: none;
+}
+.chip:hover { border-color: var(--bdr-hi); color: var(--fg); }
+.chip.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
+.chip-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+/* ===== RESULTS BAR ===== */
+.results-bar {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 16px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--bdr);
+}
+.results-count {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 600;
+  font-size: .85rem;
+  letter-spacing: .04em;
+  color: var(--fg-3);
+  text-transform: uppercase;
+}
+.results-count strong { color: var(--accent); font-size: 1rem; }
+.clear-filters {
+  background: none; border: 1px solid var(--bdr); border-radius: 4px;
+  color: var(--fg-3); font-size: .75rem; padding: 3px 8px;
+  cursor: pointer; transition: all .15s; margin-left: auto;
+  display: none;
+}
+.clear-filters:hover { border-color: var(--accent); color: var(--accent); }
+.clear-filters.visible { display: block; }
+
+/* ===== DECK GRID ===== */
+.deck-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 14px;
+}
+
+/* ===== DECK CARD ===== */
+.deck-card {
+  background: var(--surf);
+  border: 1px solid var(--bdr);
+  border-radius: 10px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color .2s, box-shadow .2s;
+}
+.deck-card:hover { border-color: var(--bdr-hi); box-shadow: 0 4px 20px rgba(0,0,0,.3); }
+.deck-card.open { border-color: var(--accent); }
+.deck-head {
+  padding: 14px 16px;
+  display: flex; align-items: flex-start; gap: 12px;
+}
+.deck-colors-col { display: flex; flex-direction: column; gap: 4px; padding-top: 3px; flex-shrink: 0; }
+.color-pip {
+  width: 8px; height: 8px; border-radius: 50%;
+  flex-shrink: 0;
+}
+.deck-info { flex: 1; min-width: 0; }
+.deck-name {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: .02em;
+  color: var(--fg);
+  line-height: 1.2;
+  margin-bottom: 7px;
+  text-wrap: balance;
+}
+.deck-tags { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; }
+.tag {
+  display: inline-flex; align-items: center;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-size: .7rem;
+  font-weight: 600;
+  font-family: 'Rajdhani', sans-serif;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  background: var(--surf-2);
+  color: var(--fg-2);
+}
+.tag-era { border: 1px solid var(--bdr); }
+.tag-count { color: var(--fg-3); }
+.expand-icon {
+  color: var(--fg-3);
+  font-size: 14px;
+  margin-top: 2px;
+  flex-shrink: 0;
+  transition: transform .2s;
+}
+.deck-card.open .expand-icon { transform: rotate(180deg); color: var(--accent); }
+
+/* ===== DECK BODY (expanded) ===== */
+.deck-body {
+  display: none;
+  border-top: 1px solid var(--bdr);
+  padding: 14px 16px;
+  max-height: 420px;
+  overflow-y: auto;
+}
+.deck-card.open .deck-body { display: block; }
+.deck-body::-webkit-scrollbar { width: 6px; }
+.deck-body::-webkit-scrollbar-track { background: transparent; }
+.deck-body::-webkit-scrollbar-thumb { background: var(--bdr-hi); border-radius: 3px; }
+
+.card-section-label {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 600;
+  font-size: .7rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--fg-3);
+  margin: 10px 0 6px;
+}
+.card-section-label:first-child { margin-top: 0; }
+.card-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 3px 0;
+  border-bottom: 1px solid var(--bdr);
+}
+.card-row:last-child { border-bottom: none; }
+.card-qty {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: .85rem;
+  color: var(--accent);
+  min-width: 18px;
+  text-align: right;
+  flex-shrink: 0;
+}
+.card-id {
+  font-size: .7rem;
+  color: var(--fg-3);
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+  min-width: 60px;
+}
+.card-name-text {
+  font-size: .82rem;
+  color: var(--fg-2);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.card-row:hover .card-name-text { color: var(--fg); }
+.card-highlight { background: var(--accent-dim); border-radius: 2px; padding: 0 1px; }
+
+/* ===== FACTIONS MINI LIST ===== */
+.faction-list {
+  display: flex; flex-wrap: wrap; gap: 4px;
+  padding-top: 10px;
+  border-top: 1px solid var(--bdr);
+  margin-top: 10px;
+}
+.faction-pill {
+  font-size: .65rem;
+  font-weight: 500;
+  color: var(--fg-3);
+  background: var(--surf-2);
+  padding: 2px 6px;
+  border-radius: 3px;
+  border: 1px solid var(--bdr);
+}
+
+/* ===== EMPTY STATE ===== */
+.empty-state {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 60px 20px;
+}
+.empty-icon { font-size: 48px; margin-bottom: 16px; opacity: .4; }
+.empty-title {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--fg-2);
+  margin-bottom: 8px;
+}
+.empty-sub { font-size: .85rem; color: var(--fg-3); }
+
+/* ===== LOADING ===== */
+.loading-state {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--fg-3);
+}
+.spinner {
+  width: 32px; height: 32px;
+  border: 2px solid var(--bdr);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+  margin: 0 auto 16px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 600px) {
+  .site-logo span { display: none; }
+  .filter-label { min-width: 60px; font-size: .7rem; }
+  .deck-grid { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .spinner, .expand-icon, .chip, .deck-card { transition: none; animation: none; }
+}
+</style>
+
+<!-- HEADER -->
+<header class="site-header">
+  <a href="../" class="site-logo">GUNTCG <span>Database</span></a>
+  <nav class="header-nav">
+    <a href="../" class="nav-link">Home</a>
+    <a href="./" class="nav-link active">Decks</a>
+    <a href="../collection/" class="nav-link" title="Coming soon" style="opacity:.5;pointer-events:none">Collection</a>
+  </nav>
+  <button class="theme-btn" id="themeBtn" title="Toggle theme" aria-label="Toggle theme">☀</button>
+</header>
+
+<main class="main">
+
+  <!-- SEARCH -->
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input class="search-input" id="searchInput" type="search"
+      placeholder="Search by deck name, card ID (GD05-059), or card name (Barbatos)…"
+      autocomplete="off" spellcheck="false">
+    <button class="search-clear" id="searchClear" aria-label="Clear search">✕</button>
+  </div>
+
+  <!-- FILTERS -->
+  <div class="filters">
+    <div class="filter-row">
+      <span class="filter-label">Archetype</span>
+      <div class="chips" id="archetypeChips"></div>
+    </div>
+    <div class="filter-row">
+      <span class="filter-label">Color</span>
+      <div class="chips" id="colorChips"></div>
+    </div>
+    <div class="filter-row">
+      <span class="filter-label">Era</span>
+      <div class="chips" id="eraChips"></div>
+    </div>
+  </div>
+
+  <!-- RESULTS BAR -->
+  <div class="results-bar">
+    <div class="results-count" id="resultsCount"><strong>—</strong> decks</div>
+    <button class="clear-filters" id="clearFilters">Clear filters</button>
+  </div>
+
+  <!-- DECK GRID -->
+  <div class="deck-grid" id="deckGrid">
+    <div class="loading-state">
+      <div class="spinner"></div>
+      Loading deck database…
+    </div>
+  </div>
+
+</main>
+
+<script>
+// ===================== CONFIG =====================
+const ARCHETYPE_META = {
+  'Deploy Damage': { color: '#ff7744', abbr: 'DD' },
+  'Link Spike':    { color: '#4a9eff', abbr: 'LS' },
+  'Control Draw':  { color: '#aa55ff', abbr: 'CD' },
+  'Tempo Aggro':   { color: '#44cc66', abbr: 'TA' },
+  'Board Synergy': { color: '#22cccc', abbr: 'BS' },
+  'Late Spike':    { color: '#ffaa22', abbr: 'LSp' },
+  'Trash Engine':  { color: '#77aa55', abbr: 'TE' },
+  'Repair Tank':   { color: '#8890b8', abbr: 'RT' },
+};
+const COLOR_META = {
+  'Blue':   { dot: '#4a9eff' },
+  'Red':    { dot: '#ff5a5a' },
+  'Green':  { dot: '#44cc77' },
+  'Purple': { dot: '#bb66ff' },
+  'Yellow': { dot: '#ffcc33' },
+  'White':  { dot: '#e8e8e8' },
+};
+
+// ===================== STATE =====================
+let allDecks = [];
+let activeArchetypes = new Set();
+let activeColors = new Set();
+let activeEras = new Set();
+let searchQuery = '';
+let openDeckIdx = null;
+
+// ===================== DATA LOAD =====================
+async function loadData() {
+  // Try same-dir (artifact), then parent-dir (GitHub Pages /decks/ subfolder)
+  let res;
+  try { res = await fetch('data/decks.json'); } catch(e) { res = null; }
+  if (!res || !res.ok) res = await fetch('../data/decks.json');
+  allDecks = await res.json();
+  buildFilters();
+  render();
+}
+
+// ===================== FILTER BUILDERS =====================
+function buildFilters() {
+  // Archetypes
+  const archetypeEl = document.getElementById('archetypeChips');
+  const knownArchetypes = [...new Set(allDecks.map(d => d.archetype))].sort();
+  knownArchetypes.forEach(a => {
+    const meta = ARCHETYPE_META[a] || { color: '#888', abbr: a.slice(0,2) };
+    const chip = document.createElement('button');
+    chip.className = 'chip';
+    chip.dataset.value = a;
+    chip.dataset.type = 'archetype';
+    const dot = document.createElement('span');
+    dot.className = 'chip-dot';
+    dot.style.background = meta.color;
+    chip.appendChild(dot);
+    chip.appendChild(document.createTextNode(a));
+    chip.addEventListener('click', () => toggleFilter('archetype', a, chip));
+    archetypeEl.appendChild(chip);
+  });
+
+  // Colors
+  const colorEl = document.getElementById('colorChips');
+  const allColors = new Set();
+  allDecks.forEach(d => {
+    if (d.colors) d.colors.split('/').forEach(c => allColors.add(c.trim()));
+  });
+  const colorOrder = ['Blue', 'Red', 'Green', 'Purple', 'Yellow', 'White'];
+  colorOrder.forEach(c => {
+    if (!allColors.has(c)) return;
+    const meta = COLOR_META[c] || { dot: '#888' };
+    const chip = document.createElement('button');
+    chip.className = 'chip';
+    chip.dataset.value = c;
+    chip.dataset.type = 'color';
+    const dot = document.createElement('span');
+    dot.className = 'chip-dot';
+    dot.style.background = meta.dot;
+    if (c === 'White') dot.style.boxShadow = '0 0 0 1px var(--bdr-hi)';
+    chip.appendChild(dot);
+    chip.appendChild(document.createTextNode(c));
+    chip.addEventListener('click', () => toggleFilter('color', c, chip));
+    colorEl.appendChild(chip);
+  });
+
+  // Eras
+  const eraEl = document.getElementById('eraChips');
+  const allEras = [...new Set(allDecks.map(d => d.format || 'GD01'))].sort();
+  allEras.forEach(era => {
+    const chip = document.createElement('button');
+    chip.className = 'chip';
+    chip.dataset.value = era;
+    chip.dataset.type = 'era';
+    chip.textContent = era;
+    chip.addEventListener('click', () => toggleFilter('era', era, chip));
+    eraEl.appendChild(chip);
+  });
+}
+
+function toggleFilter(type, value, chipEl) {
+  const set = type === 'archetype' ? activeArchetypes :
+               type === 'color' ? activeColors : activeEras;
+  if (set.has(value)) { set.delete(value); chipEl.classList.remove('active'); }
+  else { set.add(value); chipEl.classList.add('active'); }
+  render();
+  updateClearBtn();
+}
+
+// ===================== FILTERING =====================
+function getFilteredDecks() {
+  const q = searchQuery.toLowerCase().trim();
+  return allDecks.filter((deck, idx) => {
+    // Archetype filter
+    if (activeArchetypes.size > 0 && !activeArchetypes.has(deck.archetype)) return false;
+    // Color filter — deck must include ALL selected colors
+    if (activeColors.size > 0) {
+      const deckColors = new Set((deck.colors || '').split('/').map(c => c.trim()));
+      for (const c of activeColors) { if (!deckColors.has(c)) return false; }
+    }
+    // Era filter
+    if (activeEras.size > 0 && !activeEras.has(deck.format || 'GD01')) return false;
+    // Search
+    if (q) {
+      const nameMatch = deck.name.toLowerCase().includes(q);
+      const cardMatch = (deck.cards || []).some(c =>
+        c.id.toLowerCase().includes(q) || c.name.toLowerCase().includes(q)
+      );
+      if (!nameMatch && !cardMatch) return false;
+    }
+    return true;
+  });
+}
+
+// ===================== RENDER =====================
+function render() {
+  const grid = document.getElementById('deckGrid');
+  const filtered = getFilteredDecks();
+
+  // Update count
+  const countEl = document.getElementById('resultsCount');
+  countEl.innerHTML = `<strong>${filtered.length}</strong> deck${filtered.length !== 1 ? 's' : ''}`;
+
+  if (filtered.length === 0) {
+    grid.innerHTML = `<div class="empty-state">
+      <div class="empty-icon">🤖</div>
+      <div class="empty-title">No decks found</div>
+      <div class="empty-sub">Try adjusting your filters or search terms.</div>
+    </div>`;
+    return;
+  }
+
+  // Reset open state if previous open deck is now filtered out
+  const q = searchQuery.toLowerCase().trim();
+
+  grid.innerHTML = '';
+  filtered.forEach((deck, ri) => {
+    const card = buildDeckCard(deck, q);
+    grid.appendChild(card);
+  });
+}
+
+function buildDeckCard(deck, highlightQuery) {
+  const card = document.createElement('div');
+  card.className = 'deck-card';
+
+  // Color pips
+  const deckColors = (deck.colors || '').split('/').map(c => c.trim()).filter(Boolean);
+  const pipsHtml = deckColors.map(c => {
+    const meta = COLOR_META[c] || { dot: '#888' };
+    return `<span class="color-pip" style="background:${meta.dot}" title="${c}"></span>`;
+  }).join('');
+
+  // Archetype tag with color
+  const meta = ARCHETYPE_META[deck.archetype] || { color: '#888' };
+  const archetypeTag = `<span class="tag" style="color:${meta.color};background:${meta.color}22;border:1px solid ${meta.color}44">${deck.archetype}</span>`;
+
+  // Era tag
+  const era = deck.format || 'GD01';
+  const eraTag = `<span class="tag tag-era">${era}</span>`;
+
+  // Card count
+  const uniqueCards = deck.cards ? deck.cards.length : 0;
+  const totalCards = deck.card_count || 0;
+  const countTag = `<span class="tag tag-count">${totalCards} cards</span>`;
+
+  // Highlighted name
+  let displayName = escHtml(deck.name);
+  if (highlightQuery && deck.name.toLowerCase().includes(highlightQuery)) {
+    const re = new RegExp(`(${escRe(highlightQuery)})`, 'gi');
+    displayName = displayName.replace(re, '<mark class="card-highlight">$1</mark>');
+  }
+
+  card.innerHTML = `
+    <div class="deck-head">
+      <div class="deck-colors-col">${pipsHtml}</div>
+      <div class="deck-info">
+        <div class="deck-name">${displayName}</div>
+        <div class="deck-tags">${archetypeTag}${eraTag}${countTag}</div>
+      </div>
+      <span class="expand-icon">▾</span>
+    </div>
+    <div class="deck-body">
+      ${buildCardList(deck, highlightQuery)}
+    </div>
+  `;
+
+  card.querySelector('.deck-head').addEventListener('click', () => {
+    card.classList.toggle('open');
+  });
+
+  return card;
+}
+
+function buildCardList(deck, highlightQuery) {
+  if (!deck.cards || deck.cards.length === 0) return '<div style="color:var(--fg-3);font-size:.8rem">No cards listed.</div>';
+  const q = (highlightQuery || '').toLowerCase();
+
+  // Group by set prefix
+  const bySet = {};
+  deck.cards.forEach(c => {
+    const setKey = c.id.replace(/-\d+$/, '');
+    if (!bySet[setKey]) bySet[setKey] = [];
+    bySet[setKey].push(c);
+  });
+
+  let html = '';
+  Object.entries(bySet).sort((a,b) => a[0].localeCompare(b[0])).forEach(([set, cards]) => {
+    html += `<div class="card-section-label">${set}</div>`;
+    cards.sort((a,b) => a.id.localeCompare(b.id)).forEach(c => {
+      let nameHtml = escHtml(c.name || c.id);
+      let idHtml = escHtml(c.id);
+      if (q) {
+        const re = new RegExp(`(${escRe(q)})`, 'gi');
+        if (c.name.toLowerCase().includes(q)) nameHtml = nameHtml.replace(re, '<mark class="card-highlight">$1</mark>');
+        if (c.id.toLowerCase().includes(q)) idHtml = idHtml.replace(re, '<mark class="card-highlight">$1</mark>');
+      }
+      html += `<div class="card-row">
+        <span class="card-qty">${c.qty}×</span>
+        <span class="card-id">${idHtml}</span>
+        <span class="card-name-text">${nameHtml}</span>
+      </div>`;
+    });
+  });
+
+  // Factions
+  if (deck.factions && deck.factions.length > 0) {
+    const topFactions = deck.factions.slice(0, 8);
+    html += `<div class="faction-list">${topFactions.map(f => `<span class="faction-pill">${escHtml(f)}</span>`).join('')}</div>`;
+  }
+
+  return html;
+}
+
+// ===================== UTILS =====================
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function escRe(s) {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function updateClearBtn() {
+  const btn = document.getElementById('clearFilters');
+  const hasFilters = activeArchetypes.size > 0 || activeColors.size > 0 || activeEras.size > 0 || searchQuery;
+  btn.classList.toggle('visible', hasFilters);
+}
+
+// ===================== SEARCH =====================
+const searchInput = document.getElementById('searchInput');
+const searchClear = document.getElementById('searchClear');
+
+searchInput.addEventListener('input', e => {
+  searchQuery = e.target.value;
+  searchClear.style.display = searchQuery ? 'block' : 'none';
+  render();
+  updateClearBtn();
+});
+searchClear.addEventListener('click', () => {
+  searchInput.value = '';
+  searchQuery = '';
+  searchClear.style.display = 'none';
+  searchInput.focus();
+  render();
+  updateClearBtn();
+});
+
+// ===================== CLEAR FILTERS =====================
+document.getElementById('clearFilters').addEventListener('click', () => {
+  activeArchetypes.clear(); activeColors.clear(); activeEras.clear();
+  searchQuery = '';
+  searchInput.value = '';
+  searchClear.style.display = 'none';
+  document.querySelectorAll('.chip.active').forEach(c => c.classList.remove('active'));
+  render();
+  updateClearBtn();
+});
+
+// ===================== THEME TOGGLE =====================
+const themeBtn = document.getElementById('themeBtn');
+let currentTheme = null;
+try { currentTheme = localStorage.getItem('guntcg-theme'); } catch(e) {}
+if (currentTheme) {
+  document.documentElement.setAttribute('data-theme', currentTheme);
+  themeBtn.textContent = currentTheme === 'dark' ? '☀' : '🌙';
+}
+themeBtn.addEventListener('click', () => {
+  const html = document.documentElement;
+  const cur = html.getAttribute('data-theme');
+  const next = cur === 'dark' ? 'light' : 'dark';
+  html.setAttribute('data-theme', next);
+  themeBtn.textContent = next === 'dark' ? '☀' : '🌙';
+  try { localStorage.setItem('guntcg-theme', next); } catch(e) {}
+});
+
+// ===================== INIT =====================
+loadData().catch(err => {
+  document.getElementById('deckGrid').innerHTML = `<div class="empty-state">
+    <div class="empty-icon">⚠️</div>
+    <div class="empty-title">Failed to load decks</div>
+    <div class="empty-sub">${err.message}<br>Ensure data/decks.json is present in the repo.</div>
+  </div>`;
+});
+</script>

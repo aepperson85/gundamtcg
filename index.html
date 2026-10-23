@@ -1,0 +1,422 @@
+<title>Gundam TCG Database</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@400;500&display=swap">
+
+<style>
+/* ===== TOKENS ===== */
+:root {
+  --bg:         #080c14;
+  --surf:       #0f1724;
+  --surf-2:     #172030;
+  --surf-3:     #1f2d42;
+  --bdr:        #243450;
+  --bdr-hi:     #2e4268;
+  --fg:         #d4e6f8;
+  --fg-2:       #7a9ec0;
+  --fg-3:       #4a6a88;
+  --accent:     #e8a020;
+  --accent-dim: rgba(232,160,32,.12);
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg:#eef2f8; --surf:#fff; --surf-2:#f3f7fd; --surf-3:#e6edf8;
+    --bdr:#ccd8ec; --bdr-hi:#b8c8e4; --fg:#0e1e36; --fg-2:#3a5878; --fg-3:#7090b4;
+    --accent:#b07010; --accent-dim:rgba(176,112,16,.1);
+    color-scheme: light;
+  }
+}
+:root[data-theme="light"] {
+  --bg:#eef2f8; --surf:#fff; --surf-2:#f3f7fd; --surf-3:#e6edf8;
+  --bdr:#ccd8ec; --bdr-hi:#b8c8e4; --fg:#0e1e36; --fg-2:#3a5878; --fg-3:#7090b4;
+  --accent:#b07010; --accent-dim:rgba(176,112,16,.1);
+  color-scheme: light;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+  min-height: 100%;
+}
+
+/* ===== HEADER ===== */
+.site-header {
+  position: sticky;
+  top: env(safe-area-inset-top, 0px);
+  z-index: 100;
+  background: var(--surf);
+  border-bottom: 1px solid var(--bdr);
+  padding: 0 max(20px, env(safe-area-inset-left, 0px));
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  height: 52px;
+}
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0 0 auto;
+  height: env(safe-area-inset-top, 0px);
+  background: var(--surf);
+  z-index: 101;
+}
+.site-logo {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: 1.1rem;
+  letter-spacing: .05em;
+  color: var(--accent);
+  text-transform: uppercase;
+  text-decoration: none;
+}
+.site-logo span { color: var(--fg-2); font-weight: 500; }
+.header-nav { display: flex; gap: 4px; margin-left: auto; }
+.nav-link {
+  font-size: .8rem;
+  font-weight: 500;
+  color: var(--fg-2);
+  text-decoration: none;
+  padding: 4px 10px;
+  border-radius: 4px;
+  transition: color .15s, background .15s;
+}
+.nav-link:hover { color: var(--fg); background: var(--surf-2); }
+.theme-btn {
+  background: none;
+  border: 1px solid var(--bdr);
+  color: var(--fg-3);
+  width: 30px; height: 30px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+  transition: color .15s, border-color .15s;
+}
+.theme-btn:hover { color: var(--accent); border-color: var(--accent); }
+
+/* ===== HERO ===== */
+.hero {
+  padding: 56px max(20px, env(safe-area-inset-left, 0px)) 48px;
+  max-width: 860px;
+  margin: 0 auto;
+}
+.hero-eyebrow {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: .75rem;
+  font-weight: 600;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 14px;
+}
+.hero-title {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  font-weight: 700;
+  letter-spacing: .01em;
+  line-height: 1.1;
+  color: var(--fg);
+  margin-bottom: 18px;
+  text-wrap: balance;
+}
+.hero-title em {
+  font-style: normal;
+  color: var(--accent);
+}
+.hero-desc {
+  font-size: 1rem;
+  color: var(--fg-2);
+  line-height: 1.7;
+  max-width: 600px;
+  margin-bottom: 36px;
+}
+.hero-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--accent);
+  color: #0a0c10;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  text-decoration: none;
+  padding: 11px 24px;
+  border-radius: 7px;
+  transition: opacity .15s;
+}
+.hero-cta:hover { opacity: .88; }
+
+/* ===== STATS ROW ===== */
+.stats-row {
+  display: flex;
+  gap: 32px;
+  padding: 24px max(20px, env(safe-area-inset-left, 0px));
+  border-top: 1px solid var(--bdr);
+  border-bottom: 1px solid var(--bdr);
+  background: var(--surf);
+  flex-wrap: wrap;
+}
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.stat-num {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: 1.8rem;
+  color: var(--accent);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.stat-label {
+  font-size: .75rem;
+  font-weight: 500;
+  color: var(--fg-3);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+
+/* ===== FEATURE CARDS ===== */
+.features {
+  padding: 48px max(20px, env(safe-area-inset-left, 0px));
+  max-width: 1100px;
+  margin: 0 auto;
+}
+.features-heading {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--fg-3);
+  margin-bottom: 24px;
+}
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+.feature-card {
+  background: var(--surf);
+  border: 1px solid var(--bdr);
+  border-radius: 12px;
+  padding: 24px;
+  text-decoration: none;
+  transition: border-color .2s, box-shadow .2s;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.feature-card:not(.disabled):hover {
+  border-color: var(--accent);
+  box-shadow: 0 4px 24px rgba(0,0,0,.3);
+}
+.feature-card.disabled { opacity: .5; cursor: default; }
+.feature-icon { font-size: 28px; line-height: 1; }
+.feature-title {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--fg);
+  letter-spacing: .02em;
+}
+.feature-desc { font-size: .85rem; color: var(--fg-2); line-height: 1.6; }
+.feature-badge {
+  display: inline-block;
+  font-size: .65rem;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 3px;
+  background: var(--accent-dim);
+  color: var(--accent);
+  border: 1px solid currentColor;
+  align-self: flex-start;
+}
+.feature-badge.live { background: rgba(68,204,119,.12); color: #44cc77; border-color: #44cc7744; }
+
+/* ===== ARCHETYPE LEGEND ===== */
+.legend {
+  padding: 40px max(20px, env(safe-area-inset-left, 0px));
+  max-width: 1100px;
+  margin: 0 auto;
+  border-top: 1px solid var(--bdr);
+}
+.legend-heading {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--fg-3);
+  margin-bottom: 20px;
+}
+.legend-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 10px;
+}
+.legend-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: var(--surf);
+  border: 1px solid var(--bdr);
+  border-radius: 8px;
+  padding: 12px 14px;
+}
+.legend-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+.legend-name {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 600;
+  font-size: .9rem;
+  color: var(--fg);
+  margin-bottom: 3px;
+}
+.legend-desc { font-size: .75rem; color: var(--fg-3); line-height: 1.4; }
+
+/* ===== FOOTER ===== */
+footer {
+  border-top: 1px solid var(--bdr);
+  padding: 20px max(20px, env(safe-area-inset-left, 0px));
+  text-align: center;
+  font-size: .75rem;
+  color: var(--fg-3);
+  line-height: 1.6;
+}
+
+@media (max-width: 600px) {
+  .hero { padding-top: 36px; padding-bottom: 32px; }
+  .stats-row { gap: 20px; }
+  .site-logo span { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .feature-card, .hero-cta, .theme-btn, .nav-link { transition: none; }
+}
+</style>
+
+<!-- HEADER -->
+<header class="site-header">
+  <a href="./" class="site-logo">GUNTCG <span>Database</span></a>
+  <nav class="header-nav">
+    <a href="./" class="nav-link">Home</a>
+    <a href="./decks/" class="nav-link">Decks</a>
+    <a href="./collection/" class="nav-link" style="opacity:.5;pointer-events:none">Collection</a>
+  </nav>
+  <button class="theme-btn" id="themeBtn" title="Toggle theme" aria-label="Toggle theme">☀</button>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-eyebrow">Community Resource · Gundam Card Game TCG</div>
+  <h1 class="hero-title">Deck database &amp; tools for<br><em>Gundam TCG</em> players</h1>
+  <p class="hero-desc">
+    Browse 147 tournament and community decks, search by card name or ID, filter by archetype and color,
+    and track what you need to build your next list.
+  </p>
+  <a href="./decks/" class="hero-cta">Browse Decks →</a>
+</section>
+
+<!-- STATS -->
+<div class="stats-row" id="statsRow">
+  <div class="stat"><div class="stat-num" id="statDecks">147</div><div class="stat-label">Decks</div></div>
+  <div class="stat"><div class="stat-num" id="statCards">917</div><div class="stat-label">Unique Cards</div></div>
+  <div class="stat"><div class="stat-num">8</div><div class="stat-label">Archetypes</div></div>
+  <div class="stat"><div class="stat-num">GD01–GD05</div><div class="stat-label">Formats Covered</div></div>
+</div>
+
+<!-- FEATURES -->
+<section class="features">
+  <div class="features-heading">Tools</div>
+  <div class="feature-grid">
+    <a href="./decks/" class="feature-card">
+      <div class="feature-icon">🗂️</div>
+      <div class="feature-title">Deck Browser</div>
+      <div class="feature-desc">
+        Filter by archetype, color, and era. Search by card name or ID to find every deck running a specific card.
+      </div>
+      <div class="feature-badge live">Live</div>
+    </a>
+    <div class="feature-card disabled">
+      <div class="feature-icon">📦</div>
+      <div class="feature-title">Collection Builder</div>
+      <div class="feature-desc">
+        Log the cards you own. Your collection is saved privately in your browser — no account needed.
+      </div>
+      <div class="feature-badge">Phase 2</div>
+    </div>
+    <div class="feature-card disabled">
+      <div class="feature-icon">🎯</div>
+      <div class="feature-title">Deck Matcher</div>
+      <div class="feature-desc">
+        See which tournament decks you're closest to completing, and exactly which cards you're missing.
+      </div>
+      <div class="feature-badge">Phase 3</div>
+    </div>
+  </div>
+</section>
+
+<!-- ARCHETYPE LEGEND -->
+<section class="legend">
+  <div class="legend-heading">Deck Archetypes</div>
+  <div class="legend-grid" id="archetypeLegend"></div>
+</section>
+
+<footer>
+  <p>Community fan resource for the Gundam Card Game TCG. Not affiliated with Bandai Namco.</p>
+  <p style="margin-top:6px">Data covers GD01–GD05 + ST01–ST14 + EB sets · 917 cards · 147 decks</p>
+</footer>
+
+<script>
+const ARCHETYPES = [
+  { name: 'Deploy Damage', color: '#ff7744', desc: 'MS play triggers deal direct damage. Stacks pings to close games fast.' },
+  { name: 'Link Spike',    color: '#4a9eff', desc: 'Leverages strong link packages to spike power turns and steal momentum.' },
+  { name: 'Control Draw',  color: '#aa55ff', desc: 'Answers every threat while drawing into the deck. Wins with inevitability.' },
+  { name: 'Tempo Aggro',   color: '#44cc66', desc: 'Efficient units apply early pressure before the opponent stabilizes.' },
+  { name: 'Board Synergy', color: '#22cccc', desc: 'Faction synergies stack multiplicative bonuses. Each piece makes others better.' },
+  { name: 'Late Spike',    color: '#ffaa22', desc: 'Survives to the endgame, then resolves a decisive high-cost threat.' },
+  { name: 'Trash Engine',  color: '#77aa55', desc: 'Fuels graveyard mechanics for recurring value and resource generation.' },
+  { name: 'Repair Tank',   color: '#8890b8', desc: 'Heals and fortifies, outlasting aggro with shields and repair chains.' },
+];
+
+const legend = document.getElementById('archetypeLegend');
+ARCHETYPES.forEach(a => {
+  const item = document.createElement('div');
+  item.className = 'legend-item';
+  item.innerHTML = `
+    <div class="legend-swatch" style="background:${a.color}"></div>
+    <div>
+      <div class="legend-name">${a.name}</div>
+      <div class="legend-desc">${a.desc}</div>
+    </div>
+  `;
+  legend.appendChild(item);
+});
+
+// Theme toggle
+const themeBtn = document.getElementById('themeBtn');
+let saved = null;
+try { saved = localStorage.getItem('guntcg-theme'); } catch(e) {}
+if (saved) { document.documentElement.setAttribute('data-theme', saved); themeBtn.textContent = saved === 'dark' ? '☀' : '🌙'; }
+themeBtn.addEventListener('click', () => {
+  const cur = document.documentElement.getAttribute('data-theme');
+  const next = cur === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  themeBtn.textContent = next === 'dark' ? '☀' : '🌙';
+  try { localStorage.setItem('guntcg-theme', next); } catch(e) {}
+});
+</script>
