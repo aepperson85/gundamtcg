@@ -1,0 +1,787 @@
+<title>Gundam TCG Collection</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@400;500&display=swap">
+
+<style>
+/* ===== TOKENS ===== */
+:root {
+  --bg:         #080c14;
+  --surf:       #0f1724;
+  --surf-2:     #172030;
+  --surf-3:     #1f2d42;
+  --bdr:        #243450;
+  --bdr-hi:     #2e4268;
+  --fg:         #d4e6f8;
+  --fg-2:       #7a9ec0;
+  --fg-3:       #4a6a88;
+  --accent:     #e8a020;
+  --accent-dim: rgba(232,160,32,.13);
+  --pos:        #44cc77;
+  --pos-dim:    rgba(68,204,119,.12);
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg:#eef2f8; --surf:#fff; --surf-2:#f3f7fd; --surf-3:#e6edf8;
+    --bdr:#ccd8ec; --bdr-hi:#b8c8e4; --fg:#0e1e36; --fg-2:#3a5878; --fg-3:#7090b4;
+    --accent:#b07010; --accent-dim:rgba(176,112,16,.1);
+    --pos:#1a9950; --pos-dim:rgba(26,153,80,.1);
+    color-scheme: light;
+  }
+}
+:root[data-theme="light"] {
+  --bg:#eef2f8; --surf:#fff; --surf-2:#f3f7fd; --surf-3:#e6edf8;
+  --bdr:#ccd8ec; --bdr-hi:#b8c8e4; --fg:#0e1e36; --fg-2:#3a5878; --fg-3:#7090b4;
+  --accent:#b07010; --accent-dim:rgba(176,112,16,.1);
+  --pos:#1a9950; --pos-dim:rgba(26,153,80,.1);
+  color-scheme: light;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ===== HEADER ===== */
+.site-header {
+  position: sticky;
+  top: env(safe-area-inset-top, 0px);
+  z-index: 100;
+  background: var(--surf);
+  border-bottom: 1px solid var(--bdr);
+  padding: 0 max(16px, env(safe-area-inset-left, 0px));
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  height: 52px;
+}
+body::before {
+  content: ""; position: fixed; inset: 0 0 auto;
+  height: env(safe-area-inset-top, 0px);
+  background: var(--surf); z-index: 101;
+}
+.site-logo {
+  font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 1.1rem;
+  letter-spacing: .05em; color: var(--accent); text-transform: uppercase;
+  text-decoration: none; white-space: nowrap;
+}
+.site-logo span { color: var(--fg-2); font-weight: 500; }
+.header-nav { display: flex; gap: 4px; margin-left: auto; }
+.nav-link {
+  font-size: .8rem; font-weight: 500; color: var(--fg-2);
+  text-decoration: none; padding: 4px 10px; border-radius: 4px;
+  transition: color .15s, background .15s; white-space: nowrap;
+}
+.nav-link:hover { color: var(--fg); background: var(--surf-2); }
+.nav-link.active { color: var(--accent); }
+.theme-btn {
+  background: none; border: 1px solid var(--bdr); color: var(--fg-3);
+  width: 30px; height: 30px; border-radius: 6px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; flex-shrink: 0; transition: color .15s, border-color .15s;
+}
+.theme-btn:hover { color: var(--accent); border-color: var(--accent); }
+
+/* ===== STATS BAR ===== */
+.stats-bar {
+  background: var(--surf);
+  border-bottom: 1px solid var(--bdr);
+  padding: 10px max(16px, env(safe-area-inset-left, 0px));
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.stat-item { display: flex; align-items: baseline; gap: 5px; }
+.stat-num {
+  font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 1.3rem;
+  color: var(--accent); line-height: 1; font-variant-numeric: tabular-nums;
+}
+.stat-num.green { color: var(--pos); }
+.stat-label { font-size: .72rem; color: var(--fg-3); text-transform: uppercase; letter-spacing: .06em; }
+.stats-bar-actions { display: flex; gap: 8px; margin-left: auto; flex-wrap: wrap; }
+.action-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 12px; border-radius: 6px; font-size: .8rem; font-weight: 500;
+  cursor: pointer; transition: all .15s; white-space: nowrap; border: 1px solid var(--bdr);
+  background: var(--surf-2); color: var(--fg-2); font-family: 'Inter', sans-serif;
+}
+.action-btn:hover { border-color: var(--accent); color: var(--accent); }
+.action-btn.primary { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
+.action-btn.danger:hover { border-color: #ff5555; color: #ff5555; }
+
+/* ===== MAIN ===== */
+.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+/* ===== CONTROLS ===== */
+.controls {
+  padding: 12px max(16px, env(safe-area-inset-left, 0px));
+  display: flex; flex-direction: column; gap: 10px;
+  border-bottom: 1px solid var(--bdr);
+  background: var(--bg);
+}
+.search-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.search-wrap { position: relative; flex: 1; min-width: 200px; }
+.search-icon { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: var(--fg-3); font-size: 14px; pointer-events: none; }
+.search-input {
+  width: 100%; background: var(--surf); border: 1px solid var(--bdr); border-radius: 6px;
+  padding: 8px 10px 8px 34px; font-family: 'Inter', sans-serif; font-size: .85rem;
+  color: var(--fg); outline: none; transition: border-color .15s;
+}
+.search-input::placeholder { color: var(--fg-3); }
+.search-input:focus { border-color: var(--accent); }
+
+.toggle-group { display: flex; border: 1px solid var(--bdr); border-radius: 6px; overflow: hidden; }
+.toggle-btn {
+  padding: 7px 12px; font-size: .78rem; font-weight: 500; cursor: pointer;
+  background: var(--surf); color: var(--fg-3); border: none; border-right: 1px solid var(--bdr);
+  font-family: 'Inter', sans-serif; transition: all .15s; white-space: nowrap;
+}
+.toggle-btn:last-child { border-right: none; }
+.toggle-btn.active { background: var(--accent-dim); color: var(--accent); }
+
+.filter-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.filter-label {
+  font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: .72rem;
+  letter-spacing: .08em; text-transform: uppercase; color: var(--fg-3);
+  white-space: nowrap; min-width: 36px;
+}
+.chips { display: flex; gap: 5px; flex-wrap: wrap; }
+.chip {
+  display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px;
+  border-radius: 20px; border: 1px solid var(--bdr); background: var(--surf);
+  color: var(--fg-3); font-size: .72rem; font-weight: 500; cursor: pointer;
+  transition: all .15s; white-space: nowrap; user-select: none;
+}
+.chip:hover { border-color: var(--bdr-hi); color: var(--fg-2); }
+.chip.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
+
+/* ===== TABLE ===== */
+.table-wrap {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: auto;
+}
+.table-wrap::-webkit-scrollbar { width: 6px; height: 6px; }
+.table-wrap::-webkit-scrollbar-track { background: transparent; }
+.table-wrap::-webkit-scrollbar-thumb { background: var(--bdr-hi); border-radius: 3px; }
+
+table {
+  width: 100%; border-collapse: collapse; font-size: .82rem;
+  min-width: 520px;
+}
+thead {
+  position: sticky; top: 0; z-index: 10;
+  background: var(--surf-2);
+}
+th {
+  padding: 8px 10px; text-align: left;
+  font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: .7rem;
+  letter-spacing: .08em; text-transform: uppercase; color: var(--fg-3);
+  border-bottom: 1px solid var(--bdr); white-space: nowrap;
+  cursor: pointer; user-select: none;
+}
+th:hover { color: var(--fg-2); }
+th.sorted { color: var(--accent); }
+th .sort-arrow { margin-left: 3px; font-size: .6rem; }
+
+tr { border-bottom: 1px solid var(--bdr); transition: background .1s; }
+tr:hover { background: var(--surf-2); }
+tr.owned { background: var(--pos-dim); }
+tr.owned:hover { background: rgba(68,204,119,.18); }
+
+td { padding: 6px 10px; vertical-align: middle; }
+.td-id {
+  font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: .78rem;
+  color: var(--fg-3); white-space: nowrap; font-variant-numeric: tabular-nums;
+}
+.td-name { color: var(--fg); min-width: 160px; }
+.td-name mark { background: var(--accent-dim); color: var(--accent); border-radius: 2px; padding: 0 1px; }
+.td-color { white-space: nowrap; }
+.color-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 3px; vertical-align: middle; }
+.color-dot.white-dot { box-shadow: 0 0 0 1px var(--bdr-hi); }
+.td-type { color: var(--fg-3); white-space: nowrap; font-size: .75rem; }
+.td-rarity { white-space: nowrap; }
+.rarity-badge {
+  display: inline-block; padding: 1px 5px; border-radius: 3px; font-size: .65rem;
+  font-weight: 600; font-family: 'Rajdhani', sans-serif; letter-spacing: .04em;
+}
+
+/* ===== QTY CONTROL ===== */
+.qty-ctrl {
+  display: inline-flex; align-items: center; gap: 0;
+  border: 1px solid var(--bdr); border-radius: 6px; overflow: hidden;
+}
+.qty-btn {
+  background: var(--surf-2); border: none; color: var(--fg-2);
+  width: 26px; height: 26px; cursor: pointer; font-size: 14px; font-weight: 600;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .1s, color .1s; font-family: 'Inter', sans-serif;
+}
+.qty-btn:hover { background: var(--accent-dim); color: var(--accent); }
+.qty-input {
+  width: 34px; text-align: center; border: none; border-left: 1px solid var(--bdr);
+  border-right: 1px solid var(--bdr); background: var(--surf); color: var(--fg);
+  font-size: .82rem; font-family: 'Inter', sans-serif; padding: 0 2px; height: 26px;
+  font-variant-numeric: tabular-nums; outline: none; -moz-appearance: textfield;
+}
+.qty-input::-webkit-inner-spin-button { display: none; }
+.qty-input:focus { background: var(--surf-2); }
+
+/* ===== EMPTY ===== */
+.table-empty {
+  text-align: center; padding: 60px 20px; color: var(--fg-3);
+}
+.table-empty-icon { font-size: 36px; margin-bottom: 12px; opacity: .4; }
+.table-empty-title { font-family: 'Rajdhani', sans-serif; font-size: 1.2rem; font-weight: 600; color: var(--fg-2); margin-bottom: 6px; }
+.table-empty-sub { font-size: .82rem; }
+
+/* ===== IMPORT OVERLAY ===== */
+.import-overlay {
+  display: none; position: fixed; inset: 0; z-index: 200;
+  background: rgba(0,0,0,.7); align-items: center; justify-content: center; padding: 20px;
+}
+.import-overlay.open { display: flex; }
+.import-modal {
+  background: var(--surf); border: 1px solid var(--bdr); border-radius: 12px;
+  padding: 28px; max-width: 480px; width: 100%;
+}
+.modal-title {
+  font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 1.2rem;
+  margin-bottom: 8px; color: var(--fg);
+}
+.modal-sub { font-size: .85rem; color: var(--fg-2); margin-bottom: 20px; line-height: 1.5; }
+.modal-sub code { background: var(--surf-2); padding: 1px 5px; border-radius: 3px; font-size: .8rem; color: var(--accent); }
+.drop-zone {
+  border: 2px dashed var(--bdr-hi); border-radius: 8px; padding: 32px 20px;
+  text-align: center; cursor: pointer; transition: border-color .15s, background .15s;
+  margin-bottom: 16px; color: var(--fg-3); font-size: .88rem;
+}
+.drop-zone:hover, .drop-zone.drag-over { border-color: var(--accent); background: var(--accent-dim); color: var(--accent); }
+.drop-zone input[type=file] { display: none; }
+.modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
+.modal-btn {
+  padding: 8px 16px; border-radius: 6px; font-size: .85rem; font-weight: 500;
+  cursor: pointer; border: 1px solid var(--bdr); background: var(--surf-2);
+  color: var(--fg-2); font-family: 'Inter', sans-serif; transition: all .15s;
+}
+.modal-btn:hover { border-color: var(--bdr-hi); color: var(--fg); }
+.modal-btn.primary { background: var(--accent); border-color: var(--accent); color: #08090c; }
+.modal-btn.primary:hover { opacity: .88; }
+.modal-status { font-size: .8rem; color: var(--fg-3); margin-top: 10px; text-align: center; min-height: 18px; }
+
+/* ===== TOAST ===== */
+.toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
+  background: var(--surf-3); border: 1px solid var(--bdr-hi); border-radius: 8px;
+  padding: 10px 18px; font-size: .85rem; color: var(--fg); z-index: 300;
+  transition: transform .25s; pointer-events: none; white-space: nowrap;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 600px) {
+  .site-logo span { display: none; }
+  .td-type, .td-rarity { display: none; }
+  .stats-bar-actions { gap: 6px; }
+  .action-btn { font-size: .72rem; padding: 5px 8px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, .toast, .chip, .qty-btn { transition: none; }
+}
+</style>
+
+<!-- HEADER -->
+<header class="site-header">
+  <a href="../" class="site-logo">GUNTCG <span>Database</span></a>
+  <nav class="header-nav">
+    <a href="../" class="nav-link">Home</a>
+    <a href="../decks/" class="nav-link">Decks</a>
+    <a href="./" class="nav-link active">Collection</a>
+  </nav>
+  <button class="theme-btn" id="themeBtn" title="Toggle theme" aria-label="Toggle theme">☀</button>
+</header>
+
+<!-- STATS BAR -->
+<div class="stats-bar">
+  <div class="stat-item">
+    <span class="stat-num" id="statUnique">0</span>
+    <span class="stat-label">Unique cards owned</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-num" id="statTotal">0</span>
+    <span class="stat-label">Total copies</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-num green" id="statPct">0%</span>
+    <span class="stat-label">of full set</span>
+  </div>
+  <div class="stats-bar-actions">
+    <button class="action-btn" id="downloadTemplateBtn">⬇ CSV Template</button>
+    <button class="action-btn primary" id="importBtn">⬆ Import CSV</button>
+    <button class="action-btn" id="exportBtn">⬇ Export Collection</button>
+    <button class="action-btn danger" id="clearBtn">✕ Clear All</button>
+  </div>
+</div>
+
+<!-- CONTROLS -->
+<div class="controls">
+  <div class="search-row">
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input class="search-input" id="searchInput" type="search"
+        placeholder="Search by card ID or name…" autocomplete="off" spellcheck="false">
+    </div>
+    <div class="toggle-group">
+      <button class="toggle-btn active" data-view="all" id="viewAll">All Cards</button>
+      <button class="toggle-btn" data-view="owned" id="viewOwned">Owned Only</button>
+    </div>
+  </div>
+  <div class="filter-row">
+    <span class="filter-label">Set</span>
+    <div class="chips" id="setChips"></div>
+  </div>
+  <div class="filter-row">
+    <span class="filter-label">Color</span>
+    <div class="chips" id="colorChips"></div>
+  </div>
+</div>
+
+<!-- TABLE -->
+<main class="main">
+  <div class="table-wrap" id="tableWrap">
+    <table id="cardTable">
+      <thead>
+        <tr>
+          <th data-col="id">Card ID <span class="sort-arrow">↕</span></th>
+          <th data-col="name">Name <span class="sort-arrow">↕</span></th>
+          <th data-col="color">Color <span class="sort-arrow">↕</span></th>
+          <th data-col="type" class="td-type">Type <span class="sort-arrow">↕</span></th>
+          <th data-col="rarity" class="td-rarity">Rarity <span class="sort-arrow">↕</span></th>
+          <th data-col="qty" style="text-align:center">Qty Owned <span class="sort-arrow">↕</span></th>
+        </tr>
+      </thead>
+      <tbody id="cardBody">
+        <tr><td colspan="6" class="table-empty">
+          <div class="table-empty-icon">🔄</div>
+          <div class="table-empty-title">Loading cards…</div>
+        </td></tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+
+<!-- IMPORT MODAL -->
+<div class="import-overlay" id="importOverlay">
+  <div class="import-modal">
+    <div class="modal-title">Import Collection CSV</div>
+    <div class="modal-sub">
+      Upload a CSV with columns <code>CARD ID</code> and <code>QTY OWNED</code>.
+      Download the template first to get the right format. Importing will merge with
+      your existing collection — zero-quantity rows are skipped.
+    </div>
+    <div class="drop-zone" id="dropZone">
+      <input type="file" id="fileInput" accept=".csv">
+      <div>Drop CSV here or click to browse</div>
+    </div>
+    <div class="modal-status" id="modalStatus"></div>
+    <div class="modal-actions">
+      <button class="modal-btn" id="cancelImport">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== STATE =====
+const STORAGE_KEY = 'guntcg-collection';
+const COLOR_DOTS = {
+  Blue:'#4a9eff', Red:'#ff5a5a', Green:'#44cc77',
+  Purple:'#bb66ff', Yellow:'#ffcc33', White:'#e8e8e8'
+};
+const RARITY_COLORS = {
+  LR:'#ffcc33', RR:'#bb66ff', R:'#4a9eff', U:'#22cccc', C:'#7a9ec0',
+  SR:'#ff7744', PR:'#ff88cc', SP:'#44cc77'
+};
+const SET_GROUPS = {
+  'GD01':'GD01', 'GD02':'GD02', 'GD03':'GD03', 'GD04':'GD04', 'GD05':'GD05',
+  'ST':'Starter', 'EX':'Extra', 'R':'Reprint', 'T':'Token'
+};
+
+let allCards = [];      // sorted array of card objects
+let collection = {};    // {cardId: qty}
+let activeSet = null;
+let activeColors = new Set();
+let searchQuery = '';
+let viewMode = 'all';   // 'all' | 'owned'
+let sortCol = 'id';
+let sortDir = 1;
+let filteredCards = [];
+
+// ===== LOAD =====
+async function init() {
+  loadCollection();
+  // Try artifact path first, then GitHub Pages path
+  let res;
+  try { res = await fetch('data/cards.json'); } catch(e) { res = null; }
+  if (!res || !res.ok) res = await fetch('../data/cards.json');
+  const cardsObj = await res.json();
+  allCards = Object.values(cardsObj).sort((a,b) => a.id.localeCompare(b.id));
+  buildSetChips();
+  buildColorChips();
+  applyFilters();
+  updateStats();
+}
+
+// ===== COLLECTION PERSISTENCE =====
+function loadCollection() {
+  try { collection = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch(e) { collection = {}; }
+}
+function saveCollection() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(collection)); } catch(e) {}
+  updateStats();
+}
+function setQty(id, qty) {
+  qty = Math.max(0, Math.min(99, parseInt(qty) || 0));
+  if (qty === 0) delete collection[id];
+  else collection[id] = qty;
+  saveCollection();
+  // Update row highlight
+  const row = document.querySelector(`tr[data-id="${CSS.escape(id)}"]`);
+  if (row) {
+    row.classList.toggle('owned', qty > 0);
+    if (viewMode === 'owned' && qty === 0) {
+      row.hidden = true;
+      checkEmptyState();
+    }
+  }
+}
+
+// ===== STATS =====
+function updateStats() {
+  const owned = Object.keys(collection).filter(k => collection[k] > 0);
+  const total = owned.reduce((s, k) => s + collection[k], 0);
+  const pct = allCards.length > 0 ? Math.round((owned.length / allCards.length) * 100) : 0;
+  document.getElementById('statUnique').textContent = owned.length;
+  document.getElementById('statTotal').textContent = total;
+  document.getElementById('statPct').textContent = pct + '%';
+}
+
+// ===== FILTER CHIPS =====
+function buildSetChips() {
+  const el = document.getElementById('setChips');
+  const groups = [
+    {key:'GD01',label:'GD01'},{key:'GD02',label:'GD02'},{key:'GD03',label:'GD03'},
+    {key:'GD04',label:'GD04'},{key:'GD05',label:'GD05'},
+    {key:'ST',label:'Starter'},{key:'EX',label:'Extra'},{key:'R',label:'Reprint'},{key:'T',label:'Token'},
+  ];
+  groups.forEach(g => {
+    const chip = document.createElement('button');
+    chip.className = 'chip'; chip.dataset.set = g.key;
+    chip.textContent = g.label;
+    chip.addEventListener('click', () => {
+      activeSet = activeSet === g.key ? null : g.key;
+      el.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+      if (activeSet) chip.classList.add('active');
+      applyFilters();
+    });
+    el.appendChild(chip);
+  });
+}
+function buildColorChips() {
+  const el = document.getElementById('colorChips');
+  ['Blue','Red','Green','Purple','Yellow','White'].forEach(c => {
+    const chip = document.createElement('button');
+    chip.className = 'chip';
+    const dot = document.createElement('span');
+    dot.className = 'color-dot' + (c === 'White' ? ' white-dot' : '');
+    dot.style.background = COLOR_DOTS[c] || '#888';
+    chip.appendChild(dot);
+    chip.appendChild(document.createTextNode(c));
+    chip.addEventListener('click', () => {
+      if (activeColors.has(c)) { activeColors.delete(c); chip.classList.remove('active'); }
+      else { activeColors.add(c); chip.classList.add('active'); }
+      applyFilters();
+    });
+    el.appendChild(chip);
+  });
+}
+
+// ===== FILTERING + RENDER =====
+function setGroup(setCode) {
+  if (!setCode) return 'Other';
+  if (setCode.startsWith('GD')) return setCode;
+  if (setCode.startsWith('ST')) return 'ST';
+  if (setCode.startsWith('EX')) return 'EX';
+  if (setCode === 'R' || setCode === 'RP') return 'R';
+  if (setCode === 'T') return 'T';
+  return 'Other';
+}
+
+function applyFilters() {
+  const q = searchQuery.toLowerCase().trim();
+  filteredCards = allCards.filter(c => {
+    if (activeSet && setGroup(c.set) !== activeSet) return false;
+    if (activeColors.size > 0 && !activeColors.has(c.color)) return false;
+    if (viewMode === 'owned' && !collection[c.id]) return false;
+    if (q && !c.id.toLowerCase().includes(q) && !c.name.toLowerCase().includes(q)) return false;
+    return true;
+  });
+  // Sort
+  filteredCards.sort((a, b) => {
+    let av, bv;
+    if (sortCol === 'qty') { av = collection[a.id] || 0; bv = collection[b.id] || 0; }
+    else if (sortCol === 'id') { av = a.id; bv = b.id; }
+    else { av = (a[sortCol] || '').toString(); bv = (b[sortCol] || '').toString(); }
+    if (av < bv) return -sortDir;
+    if (av > bv) return sortDir;
+    return 0;
+  });
+  renderTable();
+}
+
+function renderTable() {
+  const tbody = document.getElementById('cardBody');
+  if (filteredCards.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6"><div class="table-empty">
+      <div class="table-empty-icon">${viewMode === 'owned' ? '📦' : '🤖'}</div>
+      <div class="table-empty-title">${viewMode === 'owned' ? 'No cards owned yet' : 'No cards match'}</div>
+      <div class="table-empty-sub">${viewMode === 'owned' ? 'Adjust quantities above or import a CSV to get started.' : 'Try adjusting your filters.'}</div>
+    </div></td></tr>`;
+    return;
+  }
+  const q = searchQuery.toLowerCase().trim();
+  const rows = filteredCards.map(c => {
+    const qty = collection[c.id] || 0;
+    const colorDot = c.color && COLOR_DOTS[c.color]
+      ? `<span class="color-dot${c.color === 'White' ? ' white-dot' : ''}" style="background:${COLOR_DOTS[c.color]}"></span>${escHtml(c.color)}`
+      : escHtml(c.color || '');
+    const rarityColor = RARITY_COLORS[c.rarity] || 'var(--fg-3)';
+    const rarityBadge = c.rarity
+      ? `<span class="rarity-badge" style="color:${rarityColor};background:${rarityColor}22;border:1px solid ${rarityColor}44">${escHtml(c.rarity)}</span>`
+      : '';
+    let nameHtml = escHtml(c.name);
+    if (q && c.name.toLowerCase().includes(q)) {
+      nameHtml = nameHtml.replace(new RegExp(`(${escRe(q)})`, 'gi'), '<mark>$1</mark>');
+    }
+    return `<tr class="${qty > 0 ? 'owned' : ''}" data-id="${escHtml(c.id)}">
+      <td class="td-id">${escHtml(c.id)}</td>
+      <td class="td-name">${nameHtml}</td>
+      <td class="td-color">${colorDot}</td>
+      <td class="td-type">${escHtml(c.type || '')}</td>
+      <td class="td-rarity">${rarityBadge}</td>
+      <td style="text-align:center">
+        <div class="qty-ctrl">
+          <button class="qty-btn" data-id="${escHtml(c.id)}" data-delta="-1">−</button>
+          <input class="qty-input" type="number" min="0" max="99" value="${qty}"
+            data-id="${escHtml(c.id)}" aria-label="Quantity for ${escHtml(c.name)}">
+          <button class="qty-btn" data-id="${escHtml(c.id)}" data-delta="1">+</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+  tbody.innerHTML = rows;
+}
+
+function checkEmptyState() {
+  const visible = document.querySelectorAll('#cardBody tr:not([hidden])').length;
+  if (visible === 0) renderTable();
+}
+
+// ===== TABLE EVENTS (delegated) =====
+document.getElementById('cardBody').addEventListener('click', e => {
+  const btn = e.target.closest('.qty-btn');
+  if (!btn) return;
+  const id = btn.dataset.id;
+  const delta = parseInt(btn.dataset.delta);
+  const input = btn.parentElement.querySelector('.qty-input');
+  const newQty = Math.max(0, Math.min(99, (parseInt(input.value) || 0) + delta));
+  input.value = newQty;
+  setQty(id, newQty);
+});
+document.getElementById('cardBody').addEventListener('change', e => {
+  const input = e.target.closest('.qty-input');
+  if (!input) return;
+  const val = Math.max(0, Math.min(99, parseInt(input.value) || 0));
+  input.value = val;
+  setQty(input.dataset.id, val);
+});
+
+// ===== SORT =====
+document.getElementById('cardTable').querySelector('thead').addEventListener('click', e => {
+  const th = e.target.closest('th[data-col]');
+  if (!th) return;
+  const col = th.dataset.col;
+  if (sortCol === col) sortDir *= -1;
+  else { sortCol = col; sortDir = 1; }
+  document.querySelectorAll('th').forEach(h => h.classList.remove('sorted'));
+  th.classList.add('sorted');
+  th.querySelector('.sort-arrow').textContent = sortDir === 1 ? '↑' : '↓';
+  applyFilters();
+});
+
+// ===== SEARCH =====
+document.getElementById('searchInput').addEventListener('input', e => {
+  searchQuery = e.target.value;
+  applyFilters();
+});
+
+// ===== VIEW TOGGLE =====
+document.querySelectorAll('.toggle-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    viewMode = btn.dataset.view;
+    document.querySelectorAll('.toggle-btn').forEach(b => b.classList.toggle('active', b === btn));
+    applyFilters();
+  });
+});
+
+// ===== CSV TEMPLATE DOWNLOAD =====
+document.getElementById('downloadTemplateBtn').addEventListener('click', () => {
+  const lines = ['CARD ID,CARD NAME,SET,COLOR,TYPE,QTY OWNED'];
+  allCards.forEach(c => {
+    lines.push([c.id, `"${(c.name||'').replace(/"/g,'""')}"`, c.set, c.color, c.type, 0].join(','));
+  });
+  downloadCSV(lines.join('\n'), 'GundamTCG_Collection_Template.csv');
+  showToast('Template downloaded');
+});
+
+// ===== EXPORT =====
+document.getElementById('exportBtn').addEventListener('click', () => {
+  const ownedIds = allCards.filter(c => collection[c.id] > 0);
+  if (ownedIds.length === 0) { showToast('Nothing owned yet — nothing to export'); return; }
+  const lines = ['CARD ID,CARD NAME,SET,COLOR,TYPE,QTY OWNED'];
+  ownedIds.forEach(c => {
+    lines.push([c.id, `"${(c.name||'').replace(/"/g,'""')}"`, c.set, c.color, c.type, collection[c.id]||0].join(','));
+  });
+  downloadCSV(lines.join('\n'), 'GundamTCG_My_Collection.csv');
+  showToast('Collection exported');
+});
+
+function downloadCSV(csv, filename) {
+  const blob = new Blob([csv], {type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// ===== IMPORT =====
+const overlay = document.getElementById('importOverlay');
+document.getElementById('importBtn').addEventListener('click', () => overlay.classList.add('open'));
+document.getElementById('cancelImport').addEventListener('click', () => {
+  overlay.classList.remove('open');
+  document.getElementById('modalStatus').textContent = '';
+});
+overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('open'); });
+
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+dropZone.addEventListener('click', () => fileInput.click());
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault(); dropZone.classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (file) processCSV(file);
+});
+fileInput.addEventListener('change', () => {
+  if (fileInput.files[0]) processCSV(fileInput.files[0]);
+});
+
+function processCSV(file) {
+  const status = document.getElementById('modalStatus');
+  status.textContent = 'Reading file…';
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const lines = e.target.result.split(/\r?\n/);
+      const header = lines[0].split(',').map(h => h.trim().toUpperCase().replace(/"/g,''));
+      const idCol = header.findIndex(h => h.includes('CARD') && h.includes('ID'));
+      const qtyCol = header.findIndex(h => h.includes('QTY') || h.includes('QUANTITY') || h.includes('COUNT') || h.includes('OWN'));
+      if (idCol === -1) { status.textContent = '✕ Could not find CARD ID column'; return; }
+      if (qtyCol === -1) { status.textContent = '✕ Could not find QTY OWNED column'; return; }
+      let imported = 0, skipped = 0;
+      for (let i = 1; i < lines.length; i++) {
+        if (!lines[i].trim()) continue;
+        const parts = parseCSVLine(lines[i]);
+        const id = (parts[idCol] || '').trim().replace(/"/g,'');
+        const qty = parseInt((parts[qtyCol] || '0').replace(/"/g,'')) || 0;
+        if (!id) continue;
+        if (qty > 0) { collection[id] = qty; imported++; }
+        else skipped++;
+      }
+      saveCollection();
+      applyFilters();
+      status.textContent = `✓ Imported ${imported} cards (${skipped} zero-qty skipped)`;
+      setTimeout(() => { overlay.classList.remove('open'); status.textContent = ''; }, 1800);
+      showToast(`Imported ${imported} cards`);
+    } catch(err) { status.textContent = '✕ Error: ' + err.message; }
+  };
+  reader.readAsText(file);
+}
+
+function parseCSVLine(line) {
+  const result = []; let cur = ''; let inQ = false;
+  for (let i = 0; i < line.length; i++) {
+    if (line[i] === '"') { if (inQ && line[i+1] === '"') { cur += '"'; i++; } else inQ = !inQ; }
+    else if (line[i] === ',' && !inQ) { result.push(cur); cur = ''; }
+    else cur += line[i];
+  }
+  result.push(cur); return result;
+}
+
+// ===== CLEAR =====
+document.getElementById('clearBtn').addEventListener('click', () => {
+  if (!Object.keys(collection).length) { showToast('Collection is already empty'); return; }
+  if (!confirm('Clear your entire collection? This cannot be undone.')) return;
+  collection = {};
+  saveCollection();
+  applyFilters();
+  showToast('Collection cleared');
+});
+
+// ===== TOAST =====
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+// ===== UTILS =====
+function escHtml(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function escRe(s) { return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'); }
+
+// ===== THEME =====
+const themeBtn = document.getElementById('themeBtn');
+let savedTheme = null;
+try { savedTheme = localStorage.getItem('guntcg-theme'); } catch(e) {}
+if (savedTheme) { document.documentElement.setAttribute('data-theme', savedTheme); themeBtn.textContent = savedTheme === 'dark' ? '☀' : '🌙'; }
+themeBtn.addEventListener('click', () => {
+  const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  themeBtn.textContent = next === 'dark' ? '☀' : '🌙';
+  try { localStorage.setItem('guntcg-theme', next); } catch(e) {}
+});
+
+// ===== INIT =====
+init().catch(err => {
+  document.getElementById('cardBody').innerHTML = `<tr><td colspan="6"><div class="table-empty">
+    <div class="table-empty-icon">⚠️</div>
+    <div class="table-empty-title">Failed to load card data</div>
+    <div class="table-empty-sub">${err.message}</div>
+  </div></td></tr>`;
+});
+</script>
