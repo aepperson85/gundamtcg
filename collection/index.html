@@ -385,8 +385,9 @@ td { padding: 6px 10px; vertical-align: middle; }
     <div class="modal-title">Import Collection CSV</div>
     <div class="modal-sub">
       Upload a CSV with columns <code>CARD ID</code> and <code>QTY OWNED</code>.
-      Download the template first to get the right format. Importing will merge with
-      your existing collection — zero-quantity rows are skipped.
+      Use <strong>Export Collection</strong> to get a pre-filled file of all cards with your
+      current quantities — edit it and re-import to update. Use <strong>CSV Template</strong>
+      only if starting from scratch. Importing merges with your existing collection.
     </div>
     <div class="drop-zone" id="dropZone">
       <input type="file" id="fileInput" accept=".csv">
@@ -657,14 +658,15 @@ document.getElementById('downloadTemplateBtn').addEventListener('click', () => {
 
 // ===== EXPORT =====
 document.getElementById('exportBtn').addEventListener('click', () => {
-  const ownedIds = allCards.filter(c => collection[c.id] > 0);
-  if (ownedIds.length === 0) { showToast('Nothing owned yet — nothing to export'); return; }
+  // Export ALL cards with current quantities (including zeros) so the file
+  // can be edited in a spreadsheet and re-imported without losing anything.
   const lines = ['CARD ID,CARD NAME,SET,COLOR,TYPE,QTY OWNED'];
-  ownedIds.forEach(c => {
+  allCards.forEach(c => {
     lines.push([c.id, `"${(c.name||'').replace(/"/g,'""')}"`, c.set, c.color, c.type, collection[c.id]||0].join(','));
   });
   downloadCSV(lines.join('\n'), 'GundamTCG_My_Collection.csv');
-  showToast('Collection exported');
+  const owned = allCards.filter(c => collection[c.id] > 0).length;
+  showToast(`Exported ${allCards.length} cards (${owned} owned)`);
 });
 
 function downloadCSV(csv, filename) {
