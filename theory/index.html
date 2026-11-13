@@ -540,6 +540,84 @@ body::before {
 }
 .show-more-btn:hover { color: var(--accent); border-color: var(--accent); }
 
+/* ===== ANCHOR PILLS ===== */
+.anchor-bar {
+  padding: 10px 18px 4px;
+  display: none;
+}
+.anchor-bar.visible { display: block; }
+.anchor-bar-label {
+  font-size: .68rem;
+  font-weight: 700;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--fg-3);
+  margin-bottom: 6px;
+}
+.anchor-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 8px;
+}
+.anchor-pill {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: .75rem;
+  font-weight: 600;
+  background: var(--accent-dim);
+  border: 1px solid rgba(232,160,32,.35);
+  color: var(--accent);
+  padding: 3px 8px 3px 10px;
+  border-radius: 20px;
+  max-width: 200px;
+}
+.anchor-pill-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.anchor-pill-rm {
+  background: none;
+  border: none;
+  color: var(--accent);
+  cursor: pointer;
+  padding: 0;
+  font-size: .85rem;
+  line-height: 1;
+  flex-shrink: 0;
+  opacity: .7;
+  transition: opacity .15s;
+}
+.anchor-pill-rm:hover { opacity: 1; }
+.cd-actions {
+  display: flex;
+  gap: 8px;
+  padding: 10px 18px 14px;
+  border-top: 1px solid var(--bdr);
+}
+.cd-action-btn {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: .78rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  border-radius: 6px;
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: all .15s;
+  flex: 1;
+}
+.cd-action-btn.primary {
+  background: var(--accent);
+  border: 1px solid var(--accent);
+  color: #000;
+}
+.cd-action-btn.primary:hover { opacity: .85; }
+.cd-action-btn.secondary {
+  background: none;
+  border: 1px solid var(--bdr);
+  color: var(--fg-3);
+}
+.cd-action-btn.secondary:hover { border-color: var(--accent); color: var(--accent); }
+
 /* ===== COMPLETION BAR ===== */
 .ds-completion { margin-top: 12px; }
 .ds-compl-bar {
@@ -697,6 +775,14 @@ footer {
       <div class="card-display" id="cardDisplay">
         <div class="cd-empty" id="cdEmpty">Search for a card to see synergy suggestions</div>
         <!-- filled by JS -->
+      </div>
+      <div class="cd-actions" id="cdActions" style="display:none">
+        <button class="cd-action-btn primary" id="btnBuildThis">Build Around This</button>
+        <button class="cd-action-btn secondary" id="btnAddAnchor">+ Add Anchor</button>
+      </div>
+      <div class="anchor-bar" id="anchorBar">
+        <div class="anchor-bar-label">Building around:</div>
+        <div class="anchor-pills" id="anchorPills"></div>
       </div>
       <div class="coll-notice" id="collNotice">
         📦 Collection loaded — showing ownership status
@@ -864,7 +950,8 @@ function setMode(mode) {
   document.getElementById('panelImprove').style.display = mode === 'improve' ? '' : 'none';
 
   if(mode === 'build') {
-    if(selectedCard) showBuildResults(selectedCard);
+    if(anchors.length > 0) showBuildResults(anchors);
+    else if(selectedCard) showBuildResults([selectedCard]);
     else resetResults();
   } else {
     const val = document.getElementById('deckSelect').value;
@@ -891,6 +978,7 @@ function resetResults() {
 // ==============================
 let cardList = []; // sorted list for autocomplete
 let selectedCard = null;
+let anchors = []; // array of card objects for multi-anchor build
 let acFocusIdx = -1;
 
 function buildCardList() {
@@ -970,8 +1058,63 @@ function selectCard(id) {
   searchInput.value = card.name || id;
   acEl.classList.remove('open');
   showCardDetail(selectedCard);
-  if(currentMode === 'build') showBuildResults(selectedCard);
+
+  // Show action buttons
+  const actionsEl = document.getElementById('cdActions');
+  actionsEl.style.display = '';
+
+  if(currentMode === 'build') {
+    // If no anchors yet, default to single-card build
+    if(anchors.length === 0) {
+      anchors = [selectedCard];
+      renderAnchorPills();
+      showBuildResults(anchors);
+    } else {
+      // Card picked but not yet added — just show the detail + buttons
+    }
+  }
 }
+
+function renderAnchorPills() {
+  const bar = document.getElementById('anchorBar');
+  const pillsEl = document.getElementById('anchorPills');
+  if(anchors.length === 0) {
+    bar.classList.remove('visible');
+    return;
+  }
+  bar.classList.add('visible');
+  pillsEl.innerHTML = anchors.map(a =>
+    `<div class="anchor-pill" data-id="${a.id}">
+      <span class="anchor-pill-name">${a.name || a.id}</span>
+      <button class="anchor-pill-rm" aria-label="Remove ${a.name}" onclick="removeAnchor('${a.id}')">✕</button>
+    </div>`
+  ).join('');
+}
+
+function removeAnchor(id) {
+  anchors = anchors.filter(a => a.id !== id);
+  renderAnchorPills();
+  if(anchors.length > 0) showBuildResults(anchors);
+  else resetResults();
+}
+
+// Wire action buttons after DOM ready
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('btnBuildThis').addEventListener('click', () => {
+    if(!selectedCard) return;
+    anchors = [selectedCard];
+    renderAnchorPills();
+    showBuildResults(anchors);
+  });
+  document.getElementById('btnAddAnchor').addEventListener('click', () => {
+    if(!selectedCard) return;
+    if(!anchors.find(a => a.id === selectedCard.id)) {
+      anchors.push(selectedCard);
+    }
+    renderAnchorPills();
+    showBuildResults(anchors);
+  });
+});
 
 // ==============================
 // CARD DETAIL DISPLAY
@@ -1006,31 +1149,37 @@ function showCardDetail(card) {
 // ==============================
 // BUILD AROUND RESULTS
 // ==============================
-function showBuildResults(card) {
+function showBuildResults(anchorArr) {
+  // anchorArr is an array of card objects (multi-anchor support)
   const panel = document.getElementById('resultsPanel');
+  const anchorIds = new Set(anchorArr.map(a => a.id));
 
-  const traits = card.traits || [];
-  const keywords = (card.keywords || []).map(k => k.replace(/\s+\d+$/, '').trim());
-  const lt = card.link_type;
-  const lv = card.link_value;
+  // Union of all anchor traits and keywords
+  const traits = [...new Set(anchorArr.flatMap(a => a.traits || []))];
+  const keywords = [...new Set(anchorArr.flatMap(a =>
+    (a.keywords || []).map(k => k.replace(/\s+\d+$/, '').trim())
+  ))];
 
-  // 1. SYNERGY UNITS — same trait, different card, Unit type
-  const synergyMap = new Map(); // id -> overlap score
+  // For backward compat: single anchor for link detection
+  const card = anchorArr[0];
+
+  // 1. SYNERGY UNITS — shared traits across all anchors
+  const synergyMap = new Map();
   for(const t of traits) {
     for(const cid of (traitIndex[t] || [])) {
-      if(cid === card.id) continue;
-      synergyMap.set(cid, (synergyMap.get(cid) || 0) + 2);
+      if(anchorIds.has(cid)) continue;
+      // Bonus if the card shares traits with MULTIPLE anchors
+      const sharedCount = anchorArr.filter(a => (a.traits || []).includes(t)).length;
+      synergyMap.set(cid, (synergyMap.get(cid) || 0) + (2 * sharedCount));
     }
   }
-  // Also score by keyword overlap
   for(const kk of keywords) {
     for(const cid of (keywordIndex[kk] || [])) {
-      if(cid === card.id) continue;
+      if(anchorIds.has(cid)) continue;
       synergyMap.set(cid, (synergyMap.get(cid) || 0) + 1);
     }
   }
 
-  // Filter to units/pilots that share traits (exclude commands and bases for this section)
   let synCards = [...synergyMap.entries()]
     .filter(([id]) => {
       const c = cards[id];
@@ -1039,28 +1188,34 @@ function showBuildResults(card) {
     .sort(([,a],[,b]) => b - a)
     .map(([id, score]) => ({ ...cards[id], id, score }));
 
-  // 2. PILOTS / LINKS — Pilot cards that link to this unit's traits or name
+  // 2. PILOTS / LINKS — union link requirements across anchors
   let linkedPilots = [];
-  if(lt === 'Pilot' && lv) {
-    // Find pilot cards with this name
-    linkedPilots = Object.entries(cards)
-      .filter(([id, c]) => c.type === 'Pilot' && c.name && c.name.includes(lv))
-      .map(([id, c]) => ({ ...c, id, score: 10 }));
-  }
-  if(lt === 'Trait' && lv) {
-    // Find pilot cards that have this trait
-    for(const pid of (traitIndex[lv] || [])) {
-      const c = cards[pid];
-      if(c && c.type === 'Pilot' && pid !== card.id) {
-        linkedPilots.push({ ...c, id: pid, score: 8 });
+  const linkedPilotIds = new Set();
+  for(const anchor of anchorArr) {
+    const lt = anchor.link_type, lv = anchor.link_value;
+    if(lt === 'Pilot' && lv) {
+      Object.entries(cards)
+        .filter(([id, c]) => c.type === 'Pilot' && c.name && c.name.includes(lv))
+        .forEach(([id, c]) => {
+          if(!linkedPilotIds.has(id)) {
+            linkedPilotIds.add(id);
+            linkedPilots.push({ ...c, id, score: 10 });
+          }
+        });
+    }
+    if(lt === 'Trait' && lv) {
+      for(const pid of (traitIndex[lv] || [])) {
+        const c = cards[pid];
+        if(c && c.type === 'Pilot' && !anchorIds.has(pid) && !linkedPilotIds.has(pid)) {
+          linkedPilotIds.add(pid);
+          linkedPilots.push({ ...c, id: pid, score: 8 });
+        }
       }
     }
-  }
-  // Also find any pilot cards whose name appears in this card's effect
-  if(card.effect) {
-    for(const [pid, c] of Object.entries(cards)) {
-      if(c.type === 'Pilot' && c.name && card.effect.includes(c.name)) {
-        if(!linkedPilots.find(p => p.id === pid)) {
+    if(anchor.effect) {
+      for(const [pid, c] of Object.entries(cards)) {
+        if(c.type === 'Pilot' && c.name && anchor.effect.includes(c.name) && !linkedPilotIds.has(pid)) {
+          linkedPilotIds.add(pid);
           linkedPilots.push({ ...c, id: pid, score: 5 });
         }
       }
@@ -1085,19 +1240,25 @@ function showBuildResults(card) {
   }
   commands.sort((a,b) => b.score - a.score);
 
-  // 4. DECKS — decklists that contain this card
-  const refDecks = deckCoIndex[card.id] || [];
+  // 4. DECKS — union decklists that contain ANY anchor card
+  const refDeckMap = new Map(); // deck name -> {deck, qty}
+  for(const anchor of anchorArr) {
+    for(const entry of (deckCoIndex[anchor.id] || [])) {
+      if(!refDeckMap.has(entry.deck.name)) refDeckMap.set(entry.deck.name, entry);
+    }
+  }
+  const refDecks = [...refDeckMap.values()];
 
-  // 5. CO-OCCURRENCE — other cards that appear in those same decks
+  // 5. CO-OCCURRENCE — cards appearing in those same decks, across all anchors
   const coMap = new Map();
   for(const { deck } of refDecks) {
     for(const entry of (deck.cards || [])) {
-      if(entry.id === card.id) continue;
+      if(anchorIds.has(entry.id)) continue;
       coMap.set(entry.id, (coMap.get(entry.id) || 0) + 1);
     }
   }
   const coCards = [...coMap.entries()]
-    .filter(([id]) => !synCards.find(c => c.id === id)) // don't duplicate
+    .filter(([id]) => !synCards.find(c => c.id === id))
     .sort(([,a],[,b]) => b - a)
     .slice(0, 12)
     .map(([id, cnt]) => ({ ...cards[id], id, coCount: cnt }));
@@ -1105,10 +1266,14 @@ function showBuildResults(card) {
   // ---- Render ----
   panel.innerHTML = '';
 
+  const anchorLabel = anchorArr.length > 1
+    ? anchorArr.map(a => a.name || a.id).join(' + ')
+    : (card.name || card.id);
+
   // Section: Synergy Units
   panel.appendChild(renderCardSection(
     '⚡', 'Synergy Units',
-    `Cards sharing ${traits.length ? traits.join(', ') : 'keywords'} with this card`,
+    `Cards sharing traits with ${anchorLabel}`,
     synCards.slice(0, 20),
     synCards.length,
     c => `${(c.traits || []).filter(t => traits.includes(t)).join(' · ')}`,
@@ -1116,10 +1281,14 @@ function showBuildResults(card) {
   ));
 
   // Section: Pilots / Links
-  if(linkedPilots.length || lt) {
+  if(linkedPilots.length) {
+    const linkDescs = anchorArr
+      .filter(a => a.link_type && a.link_value)
+      .map(a => `${a.link_type}: ${a.link_value}`)
+      .join(' · ');
     panel.appendChild(renderCardSection(
       '👤', 'Pilots & Links',
-      lt ? `Cards that link with this unit (${lt}: ${lv})` : 'No link requirement',
+      linkDescs || 'Cards that link with these units',
       linkedPilots.slice(0, 10),
       linkedPilots.length
     ));
@@ -1128,7 +1297,7 @@ function showBuildResults(card) {
   // Section: Command Support
   panel.appendChild(renderCardSection(
     '📜', 'Command & Base Support',
-    'Commands and Bases that synergize with this card\'s traits',
+    `Commands and Bases that synergize with ${anchorLabel}`,
     commands.slice(0, 10),
     commands.length,
     c => c.type
@@ -1138,7 +1307,7 @@ function showBuildResults(card) {
   if(coCards.length) {
     panel.appendChild(renderCardSection(
       '🔗', 'Commonly Played Together',
-      `Cards that appear in the same decklists as this card`,
+      `Cards that appear in the same decklists as ${anchorLabel}`,
       coCards.slice(0, 10),
       coCards.length,
       c => `Appears in ${c.coCount} deck${c.coCount !== 1 ? 's' : ''} together`
@@ -1149,7 +1318,7 @@ function showBuildResults(card) {
   panel.appendChild(renderDeckSection(refDecks));
 
   // Section: Skeleton Deck
-  panel.appendChild(buildSkeletonDeckSection(card));
+  panel.appendChild(buildSkeletonDeckSection(anchorArr));
 }
 
 // ==============================
@@ -1445,84 +1614,100 @@ function renderDeckCardList(deck, deckCards, missingCount) {
 // ==============================
 // SKELETON DECK BUILDER
 // ==============================
-function buildSkeletonDeckSection(card) {
+function buildSkeletonDeckSection(anchorArr) {
+  // anchorArr can be array of cards or a single card (backward compat)
+  const arr = Array.isArray(anchorArr) ? anchorArr : [anchorArr];
+  const hasCollection = Object.values(collection).some(q => q > 0);
+  let ownedOnly = false;
+
   const block = document.createElement('div');
   block.className = 'section-block';
 
-  // Build section header
+  const toggleId = 'skeletonOwnedOnly';
   block.innerHTML = `
     <div class="section-head">
       <span class="section-icon">🃏</span>
       <span class="section-label">Skeleton Deck</span>
       <span class="section-count" id="skeletonTotal">50</span>
     </div>
-    <div class="section-sub">Auto-generated 50-card starting point based on co-occurrence &amp; trait data</div>`;
+    <div class="section-sub" style="display:flex;align-items:center;justify-content:space-between;padding-right:18px">
+      <span>Auto-generated 50-card starting point based on co-occurrence &amp; trait data</span>
+      ${hasCollection ? `<label style="display:flex;align-items:center;gap:5px;cursor:pointer;white-space:nowrap;margin-left:12px">
+        <input type="checkbox" id="${toggleId}" style="accent-color:var(--accent)">
+        <span style="font-size:.72rem;font-weight:600;color:var(--fg-3);letter-spacing:.03em">Owned only</span>
+      </label>` : ''}
+    </div>`;
 
-  const { skeleton, total } = computeSkeletonDeck(card);
-
-  // Group by card type
-  const groups = {};
-  for(const item of skeleton) {
-    const type = item.card ? item.card.type : 'Other';
-    if(!groups[type]) groups[type] = [];
-    groups[type].push(item);
-  }
-
-  const hasCollection = Object.values(collection).some(q => q > 0);
-  const ownedCount = skeleton.reduce((sum, s) => sum + Math.min(collection[s.id] || 0, s.qty), 0);
-  const totalNeeded = skeleton.reduce((sum, s) => sum + s.qty, 0);
-
-  // Build text list for copy button
-  const textList = skeleton.map(s => `${s.qty}x ${s.card ? s.card.name : s.id} (${s.id})`).join('\n');
-
-  const header = document.createElement('div');
-  header.className = 'skeleton-header';
-  header.innerHTML = `
-    <span class="skeleton-total">${totalNeeded} cards${hasCollection ? ` · <span style="color:var(--pos)">${ownedCount} owned</span>` : ''}</span>
-    <button class="skeleton-copy-btn" id="skeletonCopyBtn">Copy List</button>`;
-  block.appendChild(header);
-
-  const listEl = document.createElement('div');
-  listEl.className = 'card-list';
-
-  const typeOrder = ['Unit', 'Pilot', 'Command', 'Base', 'Other'];
-  const sortedTypes = [...Object.keys(groups)].sort((a, b) => {
-    const ia = typeOrder.indexOf(a), ib = typeOrder.indexOf(b);
-    return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib);
-  });
-
-  for(const type of sortedTypes) {
-    const items = groups[type];
-    const typeQty = items.reduce((s, i) => s + i.qty, 0);
-    listEl.innerHTML += `<div class="skeleton-type-row"><span>${type}</span><span>${typeQty}</span></div>`;
-    for(const item of items) {
-      const owned = collection[item.id] || 0;
-      const badge = hasCollection
-        ? (owned >= item.qty
-            ? `<span class="cl-badge owned">×${owned}</span>`
-            : owned > 0
-              ? `<span class="cl-badge qty">×${owned}/×${item.qty}</span>`
-              : `<span class="cl-badge missing">need ×${item.qty}</span>`)
-        : `<span class="cl-badge qty">×${item.qty}</span>`;
-      listEl.innerHTML += `<div class="cl-item">
-        <span class="cl-id">${item.id}</span>
-        <div class="cl-info">
-          <div class="cl-name">${item.card ? item.card.name : item.id}</div>
-          <div class="cl-sub">${item.card ? (item.card.traits || []).join(' · ') : ''}</div>
-        </div>
-        <div class="cl-badges">${badge}</div>
-      </div>`;
+  function renderSkeleton() {
+    const { skeleton, total } = computeSkeletonDeck(arr, ownedOnly);
+    // remove old content below the head+sub
+    const existing = block.querySelector('.skeleton-header');
+    if(existing) {
+      let el = existing;
+      while(el) { const nx = el.nextSibling; block.removeChild(el); el = nx; }
     }
-  }
-  block.appendChild(listEl);
+    const oldNote = block.querySelector('.skeleton-note');
+    if(oldNote) block.removeChild(oldNote);
 
-  if(total < 50) {
-    block.innerHTML += `<div class="skeleton-note">⚠ ${50 - total} more cards needed — add same-color command/base support to reach 50.</div>`;
-  }
+    const groups = {};
+    for(const item of skeleton) {
+      const type = item.card ? item.card.type : 'Other';
+      if(!groups[type]) groups[type] = [];
+      groups[type].push(item);
+    }
 
-  // Wire copy button
-  setTimeout(() => {
-    const btn = document.getElementById('skeletonCopyBtn');
+    const ownedCount = skeleton.reduce((s, i) => s + Math.min(collection[i.id] || 0, i.qty), 0);
+    const totalNeeded = skeleton.reduce((s, i) => s + i.qty, 0);
+    const textList = skeleton.map(s => `${s.qty}x ${s.card ? s.card.name : s.id} (${s.id})`).join('\n');
+
+    const header = document.createElement('div');
+    header.className = 'skeleton-header';
+    header.innerHTML = `
+      <span class="skeleton-total">${totalNeeded} cards${hasCollection ? ` · <span style="color:var(--pos)">${ownedCount} owned</span>` : ''}${ownedOnly ? ' <em style="color:var(--fg-3);font-style:italic">(collection only)</em>' : ''}</span>
+      <button class="skeleton-copy-btn" id="skeletonCopyBtn">Copy List</button>`;
+    block.appendChild(header);
+
+    const listEl = document.createElement('div');
+    listEl.className = 'card-list';
+    const typeOrder = ['Unit', 'Pilot', 'Command', 'Base', 'Other'];
+    const sortedTypes = [...Object.keys(groups)].sort((a, b) => {
+      const ia = typeOrder.indexOf(a), ib = typeOrder.indexOf(b);
+      return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib);
+    });
+    for(const type of sortedTypes) {
+      const items = groups[type];
+      const typeQty = items.reduce((s, i) => s + i.qty, 0);
+      listEl.innerHTML += `<div class="skeleton-type-row"><span>${type}</span><span>${typeQty}</span></div>`;
+      for(const item of items) {
+        const owned = collection[item.id] || 0;
+        const badge = hasCollection
+          ? (owned >= item.qty
+              ? `<span class="cl-badge owned">×${owned}</span>`
+              : owned > 0
+                ? `<span class="cl-badge qty">×${owned}/×${item.qty}</span>`
+                : `<span class="cl-badge missing">need ×${item.qty}</span>`)
+          : `<span class="cl-badge qty">×${item.qty}</span>`;
+        listEl.innerHTML += `<div class="cl-item">
+          <span class="cl-id">${item.id}</span>
+          <div class="cl-info">
+            <div class="cl-name">${item.card ? item.card.name : item.id}</div>
+            <div class="cl-sub">${item.card ? (item.card.traits || []).join(' · ') : ''}</div>
+          </div>
+          <div class="cl-badges">${badge}</div>
+        </div>`;
+      }
+    }
+    block.appendChild(listEl);
+
+    if(total < 50) {
+      const note = document.createElement('div');
+      note.className = 'skeleton-note';
+      note.textContent = `⚠ ${50 - total} more cards needed${ownedOnly ? ' — toggle off "Owned only" to fill with best-fit cards' : ' — add same-color command/base support to reach 50'}.`;
+      block.appendChild(note);
+    }
+
+    // Wire copy button
+    const btn = block.querySelector('#skeletonCopyBtn');
     if(btn) btn.addEventListener('click', () => {
       navigator.clipboard.writeText(textList).then(() => {
         btn.textContent = 'Copied!';
@@ -1530,7 +1715,6 @@ function buildSkeletonDeckSection(card) {
         btn.style.borderColor = 'var(--pos)';
         setTimeout(() => { btn.textContent = 'Copy List'; btn.style.color = ''; btn.style.borderColor = ''; }, 1800);
       }).catch(() => {
-        // Fallback: show a textarea
         const ta = document.createElement('textarea');
         ta.value = textList;
         ta.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:360px;height:260px;z-index:9999;padding:12px;font-size:.8rem;background:var(--surf);color:var(--fg);border:1px solid var(--accent);border-radius:8px';
@@ -1540,58 +1724,93 @@ function buildSkeletonDeckSection(card) {
         ta.focus();
       });
     });
+  }
+
+  // Initial render
+  renderSkeleton();
+
+  // Wire toggle after insertion
+  setTimeout(() => {
+    const toggle = document.getElementById(toggleId);
+    if(toggle) toggle.addEventListener('change', () => {
+      ownedOnly = toggle.checked;
+      renderSkeleton();
+    });
   }, 0);
 
   return block;
 }
 
-function computeSkeletonDeck(card) {
+function computeSkeletonDeck(anchorArr, ownedOnly = false) {
+  // anchorArr: array of card objects
   const skeleton = [];
-  const usedIds = new Set([card.id]);
+  const anchorIds = new Set(anchorArr.map(a => a.id));
+  const usedIds = new Set(anchorArr.map(a => a.id));
   let total = 0;
 
-  // 1. Anchor card — 4 copies
-  const anchorQty = Math.min(4, 50 - total);
-  skeleton.push({ id: card.id, qty: anchorQty, card, source: 'anchor' });
-  total += anchorQty;
-  usedIds.add(card.id);
+  // Helper: can we use this id?
+  const canUse = (id) => {
+    if(!cards[id]) return false;
+    if(ownedOnly && !(collection[id] > 0)) return false;
+    return true;
+  };
 
-  // 2. Co-played cards ranked by deck appearances
-  const coEntries = deckCoIndex[card.id] || [];
+  // Helper: max qty for a card given ownedOnly
+  const maxQty = (id, desired) => {
+    if(ownedOnly) return Math.min(collection[id] || 0, desired, 50 - total);
+    return Math.min(desired, 50 - total, 4);
+  };
+
+  // 1. Anchor cards — split 50 initial slots proportionally
+  const anchorTarget = anchorArr.length === 1 ? 4 : anchorArr.length <= 2 ? 3 : 2;
+  for(const anchor of anchorArr) {
+    const qty = maxQty(anchor.id, anchorTarget);
+    if(qty > 0) {
+      skeleton.push({ id: anchor.id, qty, card: anchor, source: 'anchor' });
+      total += qty;
+    }
+  }
+
+  // 2. Union co-occurrence across all anchors, weighted by combined appearances
   const coMap = new Map();
-  for(const { deck: dk } of coEntries) {
-    for(const entry of (dk.cards || [])) {
-      if(entry.id === card.id || usedIds.has(entry.id)) continue;
-      if(!coMap.has(entry.id)) coMap.set(entry.id, { count: 0, totalQty: 0 });
-      const cm = coMap.get(entry.id);
-      cm.count++;
-      cm.totalQty += (entry.qty || 1);
+  const totalAnchorDecks = anchorArr.reduce((s, a) => s + (deckCoIndex[a.id] || []).length, 0) || 1;
+  for(const anchor of anchorArr) {
+    for(const { deck: dk } of (deckCoIndex[anchor.id] || [])) {
+      for(const entry of (dk.cards || [])) {
+        if(anchorIds.has(entry.id)) continue;
+        if(!coMap.has(entry.id)) coMap.set(entry.id, { count: 0, totalQty: 0 });
+        const cm = coMap.get(entry.id);
+        cm.count++;
+        cm.totalQty += (entry.qty || 1);
+      }
     }
   }
 
   const coSorted = [...coMap.entries()]
-    .map(([id, v]) => ({ id, pct: v.count / Math.max(coEntries.length, 1), avgQty: Math.round(v.totalQty / v.count) }))
-    .filter(x => cards[x.id])
+    .map(([id, v]) => ({ id, pct: v.count / totalAnchorDecks, avgQty: Math.round(v.totalQty / v.count) }))
+    .filter(x => canUse(x.id) && !usedIds.has(x.id))
     .sort((a, b) => b.pct - a.pct);
 
   for(const c of coSorted) {
     if(total >= 50) break;
     if(usedIds.has(c.id)) continue;
-    const qty = Math.min(c.avgQty || 2, 50 - total, 4);
+    const qty = maxQty(c.id, c.avgQty || 2);
+    if(qty <= 0) continue;
     skeleton.push({ id: c.id, qty, card: cards[c.id], source: 'co-occurrence' });
     total += qty;
     usedIds.add(c.id);
   }
 
-  // 3. Trait partners to fill remaining slots
+  // 3. Trait partners (union of all anchor traits)
   if(total < 50) {
-    const traits = card.traits || [];
+    const traits = [...new Set(anchorArr.flatMap(a => a.traits || []))];
     const seen = new Set();
     for(const t of traits) {
       for(const id of (traitIndex[t] || [])) {
-        if(usedIds.has(id) || seen.has(id) || !cards[id]) continue;
+        if(usedIds.has(id) || seen.has(id) || !canUse(id)) continue;
         seen.add(id);
-        const qty = Math.min(2, 50 - total);
+        const qty = maxQty(id, 2);
+        if(qty <= 0) continue;
         skeleton.push({ id, qty, card: cards[id], source: 'trait' });
         total += qty;
         usedIds.add(id);
@@ -1601,20 +1820,25 @@ function computeSkeletonDeck(card) {
     }
   }
 
-  // 4. Linked pilots (if unit) or linked units (if pilot)
-  if(total < 50 && card.link_value) {
-    const lt = card.link_type, lv = card.link_value;
-    for(const [id, c] of Object.entries(cards)) {
+  // 4. Linked pilots / units for each anchor
+  if(total < 50) {
+    for(const anchor of anchorArr) {
       if(total >= 50) break;
-      if(usedIds.has(id)) continue;
-      const matches = lt === 'Pilot'
-        ? (c.type === 'Pilot' && (c.name === lv || (c.traits || []).includes(lv)))
-        : (c.type === 'Unit' && (c.link_value === lv));
-      if(matches) {
-        const qty = Math.min(2, 50 - total);
-        skeleton.push({ id, qty, card: c, source: 'link' });
-        total += qty;
-        usedIds.add(id);
+      if(!anchor.link_value) continue;
+      const lt = anchor.link_type, lv = anchor.link_value;
+      for(const [id, c] of Object.entries(cards)) {
+        if(total >= 50) break;
+        if(usedIds.has(id) || !canUse(id)) continue;
+        const matches = lt === 'Pilot'
+          ? (c.type === 'Pilot' && (c.name === lv || (c.traits || []).includes(lv)))
+          : (c.type === 'Unit' && c.link_value === lv);
+        if(matches) {
+          const qty = maxQty(id, 2);
+          if(qty <= 0) continue;
+          skeleton.push({ id, qty, card: c, source: 'link' });
+          total += qty;
+          usedIds.add(id);
+        }
       }
     }
   }
