@@ -19392,11 +19392,16 @@
     "cost": 4,
     "ap": 3,
     "hp": 5,
-    "traits": [],
-    "keywords": [],
-    "link_type": "",
-    "link_value": "",
-    "effect": ""
+    "traits": [
+      "Earth Federation",
+      "Albion Squad"
+    ],
+    "keywords": [
+      "High-Maneuver"
+    ],
+    "link_type": "Pilot",
+    "link_value": "Kou Uraki",
+    "effect": "Once per Turn: When this Unit is attacked, draw 1 card.\nDuring Pair: This Unit gains High-Maneuver. (This Unit can't be blocked.)"
   },
   "GD06-002": {
     "id": "GD06-002",
@@ -19411,11 +19416,13 @@
     "cost": 6,
     "ap": 5,
     "hp": 5,
-    "traits": [],
+    "traits": [
+      "Orb"
+    ],
     "keywords": [],
-    "link_type": "",
-    "link_value": "",
-    "effect": ""
+    "link_type": "Pilot",
+    "link_value": "Athrun Zala",
+    "effect": "Once per Turn: During your turn, when this Unit destroys an enemy card with battle damage, choose one of your (Orb) Units; it recovers 3 HP.\nDeploy: You may choose 3 Unit cards from your trash and exile them. If you do, choose one active enemy Unit and return it to its owner's hand."
   },
   "GD06-003": {
     "id": "GD06-003",
@@ -19430,11 +19437,13 @@
     "cost": 4,
     "ap": 2,
     "hp": 5,
-    "traits": [],
+    "traits": [
+      "Alphacide"
+    ],
     "keywords": [],
-    "link_type": "",
-    "link_value": "",
-    "effect": ""
+    "link_type": "Pilot",
+    "link_value": "Amate Yuzuriha",
+    "effect": "Constant: Increase this Unit's AP by an amount equal to the number of cards in your hand.\nAttack: If another friendly (Alphacide) Unit is in play and you have 5 or fewer cards in your hand, draw 1."
   },
   "GD06-004": {
     "id": "GD06-004",
@@ -19487,11 +19496,13 @@
     "cost": 3,
     "ap": 4,
     "hp": 2,
-    "traits": [],
+    "traits": [
+      "Alphacide"
+    ],
     "keywords": [],
-    "link_type": "",
-    "link_value": "",
-    "effect": ""
+    "link_type": "Pilot",
+    "link_value": "Amate Yuzuriha",
+    "effect": "Deploy: If another friendly (Alphacide) Unit is in play, you may return one enemy Unit with 3 or less HP to its owner's hand."
   },
   "GD06-007": {
     "id": "GD06-007",
@@ -19677,10 +19688,12 @@
     "cost": 2,
     "ap": 3,
     "hp": 3,
-    "traits": [],
+    "traits": [
+      "Orb"
+    ],
     "keywords": [],
-    "link_type": "",
-    "link_value": "",
+    "link_type": "Trait",
+    "link_value": "Orb",
     "effect": ""
   },
   "GD06-017": {
@@ -20000,11 +20013,14 @@
     "cost": 8,
     "ap": 7,
     "hp": 7,
-    "traits": [],
+    "traits": [
+      "AEUG",
+      "Gundam Team"
+    ],
     "keywords": [],
-    "link_type": "",
-    "link_value": "",
-    "effect": ""
+    "link_type": "Pilot",
+    "link_value": "Judau Ashta",
+    "effect": "Constant: Your (AEUG) cards deal 1 extra damage to enemy Units.\nDeploy: Deal 2 damage to all enemy Units."
   },
   "GD06-034": {
     "id": "GD06-034",
@@ -20570,7 +20586,10 @@
     "cost": 1,
     "ap": 2,
     "hp": 2,
-    "traits": [],
+    "traits": [
+      "Zeon",
+      "Alphacide"
+    ],
     "keywords": [],
     "link_type": "",
     "link_value": "",
@@ -20589,11 +20608,16 @@
     "cost": 3,
     "ap": 3,
     "hp": 4,
-    "traits": [],
-    "keywords": [],
-    "link_type": "",
-    "link_value": "",
-    "effect": ""
+    "traits": [
+      "G Team",
+      "Mariemaia Army"
+    ],
+    "keywords": [
+      "Blocker"
+    ],
+    "link_type": "Pilot",
+    "link_value": "Chang Wufei",
+    "effect": "Blocker: Rest this Unit to change the attack target to it.\nConstant: While an enemy Unit at Lv.5 or higher is in play, this Unit gets +3 AP."
   },
   "GD06-065": {
     "id": "GD06-065",
@@ -20608,11 +20632,15 @@
     "cost": 4,
     "ap": 4,
     "hp": 5,
-    "traits": [],
-    "keywords": [],
-    "link_type": "",
-    "link_value": "",
-    "effect": ""
+    "traits": [
+      "Dianna Counter"
+    ],
+    "keywords": [
+      "Blocker"
+    ],
+    "link_type": "Pilot",
+    "link_value": "Harry Ord",
+    "effect": "Blocker: Rest this Unit to change the attack target to it.\nOnce per Turn: During your Main Phase, pay 4 to set all your (Dianna Counter) and (Militia) Units with Blocker as active. They cannot attack that turn."
   },
   "GD06-066": {
     "id": "GD06-066",
@@ -20912,11 +20940,17 @@
     "cost": 1,
     "ap": null,
     "hp": null,
-    "traits": [],
-    "keywords": [],
+    "traits": [
+      "Alphacide",
+      "Newtype"
+    ],
+    "keywords": [
+      "Burst",
+      "Repair"
+    ],
     "link_type": "",
     "link_value": "",
-    "effect": ""
+    "effect": "Burst: Add this card to your hand.\nConstant: While the paired Unit has the (Alphacide) trait, it gains Repair 2. (At the end of your turn, this Unit recovers 2 HP.)"
   },
   "GD06-082": {
     "id": "GD06-082",
@@ -20931,11 +20965,16 @@
     "cost": 1,
     "ap": null,
     "hp": null,
-    "traits": [],
-    "keywords": [],
+    "traits": [
+      "Orb",
+      "Coordinator"
+    ],
+    "keywords": [
+      "Burst"
+    ],
     "link_type": "",
     "link_value": "",
-    "effect": ""
+    "effect": "Burst: Add this card to your hand.\nWhen Paired: Choose 1 rested enemy Unit. Deal 1 damage to it."
   },
   "GD06-083": {
     "id": "GD06-083",
@@ -21045,11 +21084,17 @@
     "cost": 1,
     "ap": null,
     "hp": null,
-    "traits": [],
-    "keywords": [],
+    "traits": [
+      "AEUG",
+      "Gundam Team",
+      "Newtype"
+    ],
+    "keywords": [
+      "Burst"
+    ],
     "link_type": "",
     "link_value": "",
-    "effect": ""
+    "effect": "Burst: Add this card to your hand.\nDuring Link, Destroyed: Choose one (Gundam Team) Unit card that is Lv.2 or lower from your trash and add it to your hand."
   },
   "GD06-089": {
     "id": "GD06-089",
@@ -21216,11 +21261,16 @@
     "cost": 1,
     "ap": null,
     "hp": null,
-    "traits": [],
-    "keywords": [],
+    "traits": [
+      "Dianna Counter",
+      "Moonrace"
+    ],
+    "keywords": [
+      "Burst"
+    ],
     "link_type": "",
     "link_value": "",
-    "effect": ""
+    "effect": "Burst: Add this card to your hand.\nOnce per Turn: When the paired Unit activates Blocker, set it as active."
   },
   "GD06-098": {
     "id": "GD06-098",
