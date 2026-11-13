@@ -1,0 +1,1367 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Theory Crafter · Gundam TCG Database</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@400;500&display=swap">
+<style>
+/* ===== TOKENS ===== */
+:root {
+  --bg:         #080c14;
+  --surf:       #0f1724;
+  --surf-2:     #172030;
+  --surf-3:     #1f2d42;
+  --bdr:        #243450;
+  --bdr-hi:     #2e4268;
+  --fg:         #d4e6f8;
+  --fg-2:       #7a9ec0;
+  --fg-3:       #4a6a88;
+  --accent:     #e8a020;
+  --accent-dim: rgba(232,160,32,.12);
+  --green:      #44cc77;
+  --green-dim:  rgba(68,204,119,.12);
+  --purple:     #a070e8;
+  --purple-dim: rgba(160,112,232,.12);
+  --blue-soft:  #3a7cb8;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg:#eef2f8; --surf:#fff; --surf-2:#f3f7fd; --surf-3:#e6edf8;
+    --bdr:#ccd8ec; --bdr-hi:#b8c8e4; --fg:#0e1e36; --fg-2:#3a5878; --fg-3:#7090b4;
+    --accent:#b07010; --accent-dim:rgba(176,112,16,.1);
+    --green:#1a8a44; --green-dim:rgba(26,138,68,.1);
+    --purple:#6a30b8; --purple-dim:rgba(106,48,184,.1);
+    color-scheme: light;
+  }
+}
+:root[data-theme="light"] {
+  --bg:#eef2f8; --surf:#fff; --surf-2:#f3f7fd; --surf-3:#e6edf8;
+  --bdr:#ccd8ec; --bdr-hi:#b8c8e4; --fg:#0e1e36; --fg-2:#3a5878; --fg-3:#7090b4;
+  --accent:#b07010; --accent-dim:rgba(176,112,16,.1);
+  --green:#1a8a44; --green-dim:rgba(26,138,68,.1);
+  --purple:#6a30b8; --purple-dim:rgba(106,48,184,.1);
+  color-scheme: light;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+  min-height: 100%;
+}
+
+/* ===== HEADER ===== */
+.site-header {
+  position: sticky;
+  top: env(safe-area-inset-top, 0px);
+  z-index: 100;
+  background: var(--surf);
+  border-bottom: 1px solid var(--bdr);
+  padding: 0 max(20px, env(safe-area-inset-left, 0px));
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  height: 52px;
+}
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0 0 auto;
+  height: env(safe-area-inset-top, 0px);
+  background: var(--surf);
+  z-index: 101;
+}
+.site-logo {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: 1.1rem;
+  letter-spacing: .05em;
+  color: var(--accent);
+  text-transform: uppercase;
+  text-decoration: none;
+}
+.site-logo span { color: var(--fg-2); font-weight: 500; }
+.header-nav { display: flex; gap: 4px; margin-left: auto; }
+.nav-link {
+  font-size: .8rem;
+  font-weight: 500;
+  color: var(--fg-2);
+  text-decoration: none;
+  padding: 4px 10px;
+  border-radius: 4px;
+  transition: color .15s, background .15s;
+}
+.nav-link:hover { color: var(--fg); background: var(--surf-2); }
+.nav-link.active { color: var(--accent); }
+.theme-btn {
+  background: none;
+  border: 1px solid var(--bdr);
+  color: var(--fg-3);
+  width: 30px; height: 30px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+  transition: color .15s, border-color .15s;
+}
+.theme-btn:hover { color: var(--accent); border-color: var(--accent); }
+
+/* ===== PAGE HEADER ===== */
+.page-head {
+  padding: 36px max(20px, env(safe-area-inset-left, 0px)) 0;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+.page-eyebrow {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: .75rem;
+  font-weight: 600;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 10px;
+}
+.page-title {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: clamp(1.6rem, 4vw, 2.4rem);
+  font-weight: 700;
+  letter-spacing: .01em;
+  color: var(--fg);
+  margin-bottom: 10px;
+}
+.page-desc {
+  font-size: .9rem;
+  color: var(--fg-2);
+  line-height: 1.6;
+  margin-bottom: 28px;
+  max-width: 640px;
+}
+
+/* ===== MODE TABS ===== */
+.mode-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 28px;
+  padding: 0 max(20px, env(safe-area-inset-left, 0px));
+  max-width: 1100px;
+  margin-left: auto;
+  margin-right: auto;
+  border-bottom: 1px solid var(--bdr);
+}
+.mode-tab {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: .95rem;
+  font-weight: 600;
+  letter-spacing: .03em;
+  color: var(--fg-3);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 10px 16px 12px;
+  cursor: pointer;
+  transition: color .15s, border-color .15s;
+  margin-bottom: -1px;
+}
+.mode-tab:hover { color: var(--fg-2); }
+.mode-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* ===== MAIN LAYOUT ===== */
+.main {
+  padding: 24px max(20px, env(safe-area-inset-left, 0px));
+  max-width: 1100px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+@media (max-width: 800px) {
+  .main { grid-template-columns: 1fr; }
+}
+
+/* ===== PANEL ===== */
+.panel {
+  background: var(--surf);
+  border: 1px solid var(--bdr);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.panel-head {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--bdr);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: .8rem;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--fg-3);
+}
+
+/* ===== SEARCH INPUT ===== */
+.search-wrap {
+  position: relative;
+  padding: 14px;
+}
+.search-input {
+  width: 100%;
+  background: var(--surf-2);
+  border: 1px solid var(--bdr);
+  color: var(--fg);
+  font-family: 'Inter', sans-serif;
+  font-size: .9rem;
+  padding: 10px 14px;
+  border-radius: 7px;
+  outline: none;
+  transition: border-color .15s;
+}
+.search-input:focus { border-color: var(--accent); }
+.search-input::placeholder { color: var(--fg-3); }
+
+.autocomplete {
+  position: absolute;
+  top: 100%;
+  left: 14px; right: 14px;
+  background: var(--surf-2);
+  border: 1px solid var(--bdr-hi);
+  border-radius: 7px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.4);
+  max-height: 280px;
+  overflow-y: auto;
+  z-index: 50;
+  display: none;
+}
+.autocomplete.open { display: block; }
+.ac-item {
+  padding: 9px 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid var(--bdr);
+  transition: background .1s;
+}
+.ac-item:last-child { border-bottom: none; }
+.ac-item:hover, .ac-item.focused { background: var(--surf-3); }
+.ac-id {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: .75rem;
+  font-weight: 600;
+  color: var(--fg-3);
+  white-space: nowrap;
+  min-width: 72px;
+}
+.ac-name {
+  font-size: .85rem;
+  color: var(--fg);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ac-type {
+  font-size: .7rem;
+  color: var(--fg-3);
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+/* ===== SELECTED CARD DISPLAY ===== */
+.card-display {
+  padding: 14px 18px 18px;
+  display: none;
+}
+.card-display.visible { display: block; }
+.cd-name {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--fg);
+  margin-bottom: 4px;
+}
+.cd-id {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: .78rem;
+  font-weight: 600;
+  color: var(--fg-3);
+  letter-spacing: .05em;
+  margin-bottom: 10px;
+}
+.cd-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 10px;
+}
+.cd-tag {
+  font-size: .68rem;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 3px;
+  border: 1px solid;
+}
+.cd-tag.trait { background: var(--accent-dim); color: var(--accent); border-color: rgba(232,160,32,.3); }
+.cd-tag.kw { background: var(--purple-dim); color: var(--purple); border-color: rgba(160,112,232,.3); }
+.cd-tag.type { background: var(--surf-3); color: var(--fg-2); border-color: var(--bdr); }
+.cd-effect {
+  font-size: .78rem;
+  color: var(--fg-2);
+  line-height: 1.6;
+  border-top: 1px solid var(--bdr);
+  padding-top: 10px;
+  margin-top: 4px;
+  white-space: pre-wrap;
+}
+.cd-link {
+  font-size: .78rem;
+  color: var(--fg-3);
+  margin-top: 8px;
+}
+.cd-link strong { color: var(--fg-2); }
+.cd-empty {
+  font-size: .85rem;
+  color: var(--fg-3);
+  line-height: 1.6;
+  text-align: center;
+  padding: 32px 16px;
+}
+
+/* ===== COLLECTION NOTICE ===== */
+.coll-notice {
+  margin: 0 14px 14px;
+  padding: 10px 12px;
+  background: var(--green-dim);
+  border: 1px solid rgba(68,204,119,.2);
+  border-radius: 6px;
+  font-size: .75rem;
+  color: var(--green);
+  display: none;
+}
+.coll-notice.visible { display: block; }
+
+/* ===== RESULTS PANEL ===== */
+.results-panel { display: flex; flex-direction: column; gap: 16px; }
+
+.section-block {
+  background: var(--surf);
+  border: 1px solid var(--bdr);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.section-head {
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--bdr);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.section-icon { font-size: 16px; }
+.section-label {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: .85rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--fg-2);
+  flex: 1;
+}
+.section-count {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: .78rem;
+  font-weight: 600;
+  color: var(--fg-3);
+  background: var(--surf-3);
+  border: 1px solid var(--bdr);
+  border-radius: 10px;
+  padding: 1px 8px;
+}
+
+/* Card list items */
+.card-list { padding: 6px 0; }
+.cl-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 18px;
+  border-bottom: 1px solid var(--bdr);
+  transition: background .1s;
+}
+.cl-item:last-child { border-bottom: none; }
+.cl-item:hover { background: var(--surf-2); }
+.cl-id {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: .72rem;
+  font-weight: 700;
+  color: var(--fg-3);
+  letter-spacing: .04em;
+  white-space: nowrap;
+  min-width: 68px;
+}
+.cl-info { flex: 1; min-width: 0; }
+.cl-name {
+  font-size: .85rem;
+  color: var(--fg);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cl-sub {
+  font-size: .72rem;
+  color: var(--fg-3);
+  margin-top: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cl-badges { display: flex; gap: 4px; flex-shrink: 0; }
+.cl-badge {
+  font-size: .62rem;
+  font-weight: 600;
+  letter-spacing: .06em;
+  padding: 1px 6px;
+  border-radius: 3px;
+  border: 1px solid;
+  white-space: nowrap;
+}
+.cl-badge.owned { background: var(--green-dim); color: var(--green); border-color: rgba(68,204,119,.3); }
+.cl-badge.missing { background: rgba(220,80,60,.12); color: #e05040; border-color: rgba(220,80,60,.3); }
+.cl-badge.new { background: var(--accent-dim); color: var(--accent); border-color: rgba(232,160,32,.3); }
+.cl-badge.qty { background: var(--surf-3); color: var(--fg-2); border-color: var(--bdr); }
+
+/* Deck items */
+.deck-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 18px;
+  border-bottom: 1px solid var(--bdr);
+  transition: background .1s;
+  cursor: default;
+}
+.deck-item:last-child { border-bottom: none; }
+.deck-item:hover { background: var(--surf-2); }
+.deck-name {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: .95rem;
+  font-weight: 700;
+  color: var(--fg);
+  flex: 1;
+}
+.deck-meta { font-size: .72rem; color: var(--fg-3); margin-top: 1px; }
+.deck-copies {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: .78rem;
+  font-weight: 700;
+  color: var(--fg-3);
+}
+
+/* Empty / placeholder states */
+.empty-state {
+  padding: 32px 20px;
+  text-align: center;
+  font-size: .85rem;
+  color: var(--fg-3);
+  line-height: 1.6;
+}
+.empty-icon { font-size: 32px; margin-bottom: 10px; }
+
+/* ===== DECK PICKER (improve mode) ===== */
+.deck-picker {
+  padding: 14px;
+}
+.deck-select {
+  width: 100%;
+  background: var(--surf-2);
+  border: 1px solid var(--bdr);
+  color: var(--fg);
+  font-family: 'Inter', sans-serif;
+  font-size: .88rem;
+  padding: 10px 12px;
+  border-radius: 7px;
+  outline: none;
+  transition: border-color .15s;
+  cursor: pointer;
+}
+.deck-select:focus { border-color: var(--accent); }
+.deck-select option { background: var(--surf-2); color: var(--fg); }
+
+/* Deck summary */
+.deck-summary {
+  padding: 10px 18px 14px;
+  display: none;
+}
+.deck-summary.visible { display: block; }
+.ds-name {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--fg);
+  margin-bottom: 4px;
+}
+.ds-meta {
+  font-size: .78rem;
+  color: var(--fg-3);
+  margin-bottom: 10px;
+}
+.trait-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.trait-pill {
+  font-size: .68rem;
+  font-weight: 600;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 10px;
+  background: var(--accent-dim);
+  color: var(--accent);
+  border: 1px solid rgba(232,160,32,.3);
+}
+
+/* ===== SHOW MORE ===== */
+.show-more-wrap { padding: 10px 18px; border-top: 1px solid var(--bdr); }
+.show-more-btn {
+  font-size: .78rem;
+  font-weight: 600;
+  color: var(--fg-3);
+  background: none;
+  border: 1px solid var(--bdr);
+  border-radius: 5px;
+  padding: 5px 12px;
+  cursor: pointer;
+  transition: color .15s, border-color .15s;
+}
+.show-more-btn:hover { color: var(--accent); border-color: var(--accent); }
+
+/* ===== FOOTER ===== */
+footer {
+  border-top: 1px solid var(--bdr);
+  padding: 20px max(20px, env(safe-area-inset-left, 0px));
+  text-align: center;
+  font-size: .75rem;
+  color: var(--fg-3);
+  line-height: 1.6;
+  margin-top: 40px;
+}
+
+/* ===== LOADING ===== */
+.loading-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px;
+  font-size: .85rem;
+  color: var(--fg-3);
+}
+.spinner {
+  width: 14px; height: 14px;
+  border: 2px solid var(--bdr);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+  flex-shrink: 0;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 600px) {
+  .main { padding: 16px max(12px, env(safe-area-inset-left, 0px)); gap: 16px; }
+  .site-logo span { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .spinner { animation: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header class="site-header">
+  <a href="../" class="site-logo">GUNTCG <span>Database</span></a>
+  <nav class="header-nav">
+    <a href="../" class="nav-link">Home</a>
+    <a href="../decks/" class="nav-link">Decks</a>
+    <a href="../collection/" class="nav-link">Collection</a>
+    <a href="../matcher/" class="nav-link">Matcher</a>
+    <a href="../theory/" class="nav-link active">Theory</a>
+  </nav>
+  <button class="theme-btn" id="themeBtn" title="Toggle theme" aria-label="Toggle theme">☀</button>
+</header>
+
+<!-- ===== PAGE HEADER ===== -->
+<div class="page-head">
+  <div class="page-eyebrow">Theory Crafter · Gundam TCG Database</div>
+  <h1 class="page-title">Deck Theory Crafter</h1>
+  <p class="page-desc">
+    Explore synergies, discover new archetypes, or find upgrade paths for existing decks — all powered by the card database and your collection.
+  </p>
+</div>
+
+<!-- ===== MODE TABS ===== -->
+<div class="mode-tabs">
+  <button class="mode-tab active" id="tabBuild" onclick="setMode('build')">🃏 Build Around a Card</button>
+  <button class="mode-tab" id="tabImprove" onclick="setMode('improve')">⬆️ Improve a Deck</button>
+</div>
+
+<!-- ===== MAIN ===== -->
+<div class="main">
+
+  <!-- ========== LEFT PANEL ========== -->
+  <div>
+
+    <!-- BUILD MODE: Card Search -->
+    <div class="panel" id="panelBuild">
+      <div class="panel-head">Select a Card</div>
+      <div class="search-wrap">
+        <input class="search-input" id="cardSearch" type="search"
+               placeholder="Search by name or ID…" autocomplete="off"
+               aria-label="Search cards">
+        <div class="autocomplete" id="autocomplete"></div>
+      </div>
+      <div class="card-display" id="cardDisplay">
+        <div class="cd-empty" id="cdEmpty">Search for a card to see synergy suggestions</div>
+        <!-- filled by JS -->
+      </div>
+      <div class="coll-notice" id="collNotice">
+        📦 Collection loaded — showing ownership status
+      </div>
+    </div>
+
+    <!-- IMPROVE MODE: Deck Picker -->
+    <div class="panel" id="panelImprove" style="display:none">
+      <div class="panel-head">Select a Deck</div>
+      <div class="deck-picker">
+        <select class="deck-select" id="deckSelect" aria-label="Select deck">
+          <option value="">— choose a deck —</option>
+        </select>
+      </div>
+      <div class="deck-summary" id="deckSummary"></div>
+      <div class="coll-notice" id="collNotice2">
+        📦 Collection loaded — showing what you own
+      </div>
+    </div>
+
+  </div><!-- /left -->
+
+  <!-- ========== RIGHT PANEL ========== -->
+  <div class="results-panel" id="resultsPanel">
+
+    <div class="section-block">
+      <div class="empty-state" id="emptyResults">
+        <div class="empty-icon">🤖</div>
+        <div>Select a card or deck to see theory suggestions.</div>
+        <div style="margin-top:8px;font-size:.75rem;">
+          Synergy is detected using shared traits, link chains, keyword overlaps,<br>and co-occurrence across the deck database.
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /results -->
+
+</div><!-- /main -->
+
+<footer>
+  <div>Gundam TCG Database · Community resource · Not affiliated with Bandai or Sunrise</div>
+  <div style="margin-top:4px">Card data sourced from deckodex.com and gundamcardlist.com</div>
+</footer>
+
+<!-- ===== JAVASCRIPT ===== -->
+<script>
+'use strict';
+
+// ==============================
+// THEME
+// ==============================
+(function(){
+  const saved = localStorage.getItem('guntcg-theme');
+  if(saved) document.documentElement.dataset.theme = saved;
+  document.getElementById('themeBtn').addEventListener('click', () => {
+    const cur = document.documentElement.dataset.theme;
+    const next = cur === 'light' ? 'dark' : 'light';
+    document.documentElement.dataset.theme = next;
+    localStorage.setItem('guntcg-theme', next);
+  });
+})();
+
+// ==============================
+// DATA
+// ==============================
+let cards = {};      // id -> card object
+let decks = [];      // array of deck objects
+let collection = {}; // id -> qty (from localStorage)
+let dataReady = false;
+
+// Indexes built after load
+let traitIndex = {};     // trait -> Set of card_ids
+let keywordIndex = {};   // keyword -> Set of card_ids
+let pilotIndex = {};     // pilot_name -> Set of unit_ids (units linked by that pilot)
+let traitLinkIndex = {}; // trait_name -> Set of unit_ids (units linked by that trait)
+let deckCoIndex = {};    // card_id -> [{deck, qty}]
+
+function buildIndexes() {
+  // Build card indexes
+  for(const [id, c] of Object.entries(cards)) {
+    // Trait index
+    for(const t of (c.traits || [])) {
+      if(!traitIndex[t]) traitIndex[t] = new Set();
+      traitIndex[t].add(id);
+    }
+    // Keyword index
+    for(const k of (c.keywords || [])) {
+      const kk = k.replace(/\s+\d+$/, '').trim(); // normalize "Repair 2" -> "Repair"
+      if(!keywordIndex[kk]) keywordIndex[kk] = new Set();
+      keywordIndex[kk].add(id);
+    }
+    // Link index (for pilot cards to find which units they link to)
+    // This handles the reverse: pilot card has type=Pilot... actually
+    // link_type/link_value is on the UNIT card, so we index it differently
+  }
+
+  // Pilot/trait link: unit cards say "link_type=Pilot, link_value=Kou Uraki"
+  // We want: given a pilot card name, find which units it pairs with
+  // And given a unit trait, find which pilot cards can pair with it
+  for(const [id, c] of Object.entries(cards)) {
+    if(c.link_type === 'Pilot' && c.link_value) {
+      if(!pilotIndex[c.link_value]) pilotIndex[c.link_value] = new Set();
+      pilotIndex[c.link_value].add(id); // units that want this pilot
+    }
+    if(c.link_type === 'Trait' && c.link_value) {
+      if(!traitLinkIndex[c.link_value]) traitLinkIndex[c.link_value] = new Set();
+      traitLinkIndex[c.link_value].add(id); // units that want this trait pilot
+    }
+  }
+
+  // Deck co-occurrence index
+  for(const deck of decks) {
+    for(const entry of (deck.cards || [])) {
+      if(!deckCoIndex[entry.id]) deckCoIndex[entry.id] = [];
+      deckCoIndex[entry.id].push({ deck, qty: entry.qty });
+    }
+  }
+}
+
+async function loadData() {
+  try {
+    const [cardsRes, decksRes] = await Promise.all([
+      fetch('../data/cards.json'),
+      fetch('../data/decks.json')
+    ]);
+    cards = await cardsRes.json();
+    decks = await decksRes.json();
+
+    // Load collection
+    try {
+      const raw = localStorage.getItem('guntcg-collection');
+      collection = raw ? JSON.parse(raw) : {};
+    } catch(e) { collection = {}; }
+
+    buildIndexes();
+    dataReady = true;
+    onDataReady();
+  } catch(err) {
+    console.error('Failed to load data:', err);
+    document.getElementById('resultsPanel').innerHTML =
+      `<div class="section-block"><div class="empty-state">⚠️ Failed to load card data. Make sure you're running from the site root.</div></div>`;
+  }
+}
+
+function onDataReady() {
+  buildDeckPicker();
+
+  const hasCollection = Object.values(collection).some(q => q > 0);
+  if(hasCollection) {
+    document.getElementById('collNotice').classList.add('visible');
+    document.getElementById('collNotice2').classList.add('visible');
+  }
+}
+
+// ==============================
+// MODE SWITCHING
+// ==============================
+let currentMode = 'build';
+
+function setMode(mode) {
+  currentMode = mode;
+  document.getElementById('tabBuild').classList.toggle('active', mode === 'build');
+  document.getElementById('tabImprove').classList.toggle('active', mode === 'improve');
+  document.getElementById('panelBuild').style.display = mode === 'build' ? '' : 'none';
+  document.getElementById('panelImprove').style.display = mode === 'improve' ? '' : 'none';
+
+  if(mode === 'build') {
+    if(selectedCard) showBuildResults(selectedCard);
+    else resetResults();
+  } else {
+    const val = document.getElementById('deckSelect').value;
+    if(val) showImproveResults(val);
+    else resetResults();
+  }
+}
+
+function resetResults() {
+  document.getElementById('resultsPanel').innerHTML = `
+    <div class="section-block">
+      <div class="empty-state" id="emptyResults">
+        <div class="empty-icon">🤖</div>
+        <div>Select a card or deck to see theory suggestions.</div>
+        <div style="margin-top:8px;font-size:.75rem;">
+          Synergy is detected using shared traits, link chains, keyword overlaps,<br>and co-occurrence across the deck database.
+        </div>
+      </div>
+    </div>`;
+}
+
+// ==============================
+// AUTOCOMPLETE
+// ==============================
+let cardList = []; // sorted list for autocomplete
+let selectedCard = null;
+let acFocusIdx = -1;
+
+function buildCardList() {
+  cardList = Object.entries(cards)
+    .map(([id, c]) => ({ id, name: c.name || id, type: c.type || '', color: c.color || '' }))
+    .sort((a,b) => a.id.localeCompare(b.id));
+}
+
+function searchCards(query) {
+  if(!query || query.length < 2) return [];
+  const q = query.toLowerCase();
+  return cardList.filter(c =>
+    c.id.toLowerCase().includes(q) || c.name.toLowerCase().includes(q)
+  ).slice(0, 20);
+}
+
+const searchInput = document.getElementById('cardSearch');
+const acEl = document.getElementById('autocomplete');
+
+searchInput.addEventListener('input', () => {
+  acFocusIdx = -1;
+  const results = searchCards(searchInput.value);
+  if(!results.length || !searchInput.value) {
+    acEl.classList.remove('open');
+    acEl.innerHTML = '';
+    return;
+  }
+  acEl.innerHTML = results.map((c, i) =>
+    `<div class="ac-item" data-id="${c.id}" data-idx="${i}">
+      <span class="ac-id">${c.id}</span>
+      <span class="ac-name">${c.name}</span>
+      <span class="ac-type">${c.type}</span>
+    </div>`
+  ).join('');
+  acEl.classList.add('open');
+
+  acEl.querySelectorAll('.ac-item').forEach(item => {
+    item.addEventListener('mousedown', e => {
+      e.preventDefault();
+      selectCard(item.dataset.id);
+    });
+  });
+});
+
+searchInput.addEventListener('keydown', e => {
+  const items = acEl.querySelectorAll('.ac-item');
+  if(e.key === 'ArrowDown') {
+    e.preventDefault();
+    acFocusIdx = Math.min(acFocusIdx + 1, items.length - 1);
+    items.forEach((it, i) => it.classList.toggle('focused', i === acFocusIdx));
+  } else if(e.key === 'ArrowUp') {
+    e.preventDefault();
+    acFocusIdx = Math.max(acFocusIdx - 1, -1);
+    items.forEach((it, i) => it.classList.toggle('focused', i === acFocusIdx));
+  } else if(e.key === 'Enter') {
+    e.preventDefault();
+    if(acFocusIdx >= 0 && items[acFocusIdx]) {
+      selectCard(items[acFocusIdx].dataset.id);
+    } else if(items.length === 1) {
+      selectCard(items[0].dataset.id);
+    }
+  } else if(e.key === 'Escape') {
+    acEl.classList.remove('open');
+  }
+});
+
+document.addEventListener('click', e => {
+  if(!acEl.contains(e.target) && e.target !== searchInput) {
+    acEl.classList.remove('open');
+  }
+});
+
+function selectCard(id) {
+  const card = cards[id];
+  if(!card) return;
+  selectedCard = { id, ...card };
+  searchInput.value = card.name || id;
+  acEl.classList.remove('open');
+  showCardDetail(selectedCard);
+  if(currentMode === 'build') showBuildResults(selectedCard);
+}
+
+// ==============================
+// CARD DETAIL DISPLAY
+// ==============================
+function showCardDetail(card) {
+  const disp = document.getElementById('cardDisplay');
+  disp.classList.add('visible');
+
+  const traits = (card.traits || []).map(t =>
+    `<span class="cd-tag trait">${t}</span>`).join('');
+  const keywords = (card.keywords || []).map(k =>
+    `<span class="cd-tag kw">${k}</span>`).join('');
+  const typeBadge = card.type ? `<span class="cd-tag type">${card.type}</span>` : '';
+  const colorBadge = card.color ? `<span class="cd-tag type">${card.color}</span>` : '';
+
+  let linkHtml = '';
+  if(card.link_type && card.link_value) {
+    linkHtml = `<div class="cd-link">Link: <strong>${card.link_type}</strong> · ${card.link_value}</div>`;
+  }
+
+  const effect = card.effect ? `<div class="cd-effect">${card.effect}</div>` : '';
+
+  disp.innerHTML = `
+    <div class="cd-name">${card.name || card.id}</div>
+    <div class="cd-id">${card.id}</div>
+    <div class="cd-meta">${typeBadge}${colorBadge}${traits}${keywords}</div>
+    ${linkHtml}
+    ${effect || '<div class="cd-effect" style="color:var(--fg-3);font-style:italic">No effect text available</div>'}
+  `;
+}
+
+// ==============================
+// BUILD AROUND RESULTS
+// ==============================
+function showBuildResults(card) {
+  const panel = document.getElementById('resultsPanel');
+
+  const traits = card.traits || [];
+  const keywords = (card.keywords || []).map(k => k.replace(/\s+\d+$/, '').trim());
+  const lt = card.link_type;
+  const lv = card.link_value;
+
+  // 1. SYNERGY UNITS — same trait, different card, Unit type
+  const synergyMap = new Map(); // id -> overlap score
+  for(const t of traits) {
+    for(const cid of (traitIndex[t] || [])) {
+      if(cid === card.id) continue;
+      synergyMap.set(cid, (synergyMap.get(cid) || 0) + 2);
+    }
+  }
+  // Also score by keyword overlap
+  for(const kk of keywords) {
+    for(const cid of (keywordIndex[kk] || [])) {
+      if(cid === card.id) continue;
+      synergyMap.set(cid, (synergyMap.get(cid) || 0) + 1);
+    }
+  }
+
+  // Filter to units/pilots that share traits (exclude commands and bases for this section)
+  let synCards = [...synergyMap.entries()]
+    .filter(([id]) => {
+      const c = cards[id];
+      return c && (c.type === 'Unit' || c.type === 'Pilot' || !c.type);
+    })
+    .sort(([,a],[,b]) => b - a)
+    .map(([id, score]) => ({ ...cards[id], id, score }));
+
+  // 2. PILOTS / LINKS — Pilot cards that link to this unit's traits or name
+  let linkedPilots = [];
+  if(lt === 'Pilot' && lv) {
+    // Find pilot cards with this name
+    linkedPilots = Object.entries(cards)
+      .filter(([id, c]) => c.type === 'Pilot' && c.name && c.name.includes(lv))
+      .map(([id, c]) => ({ ...c, id, score: 10 }));
+  }
+  if(lt === 'Trait' && lv) {
+    // Find pilot cards that have this trait
+    for(const pid of (traitIndex[lv] || [])) {
+      const c = cards[pid];
+      if(c && c.type === 'Pilot' && pid !== card.id) {
+        linkedPilots.push({ ...c, id: pid, score: 8 });
+      }
+    }
+  }
+  // Also find any pilot cards whose name appears in this card's effect
+  if(card.effect) {
+    for(const [pid, c] of Object.entries(cards)) {
+      if(c.type === 'Pilot' && c.name && card.effect.includes(c.name)) {
+        if(!linkedPilots.find(p => p.id === pid)) {
+          linkedPilots.push({ ...c, id: pid, score: 5 });
+        }
+      }
+    }
+  }
+  linkedPilots.sort((a,b) => b.score - a.score);
+
+  // 3. COMMAND SUPPORT — Command cards with matching traits or effect text
+  let commands = [];
+  for(const [id, c] of Object.entries(cards)) {
+    if(c.type !== 'Command' && c.type !== 'Base') continue;
+    if(id === card.id) continue;
+    let score = 0;
+    for(const t of traits) {
+      if((c.traits || []).includes(t)) score += 2;
+      if(c.effect && c.effect.includes(`(${t})`)) score += 1;
+    }
+    for(const kk of keywords) {
+      if((c.keywords || []).includes(kk) || (c.effect && c.effect.toLowerCase().includes(kk.toLowerCase()))) score++;
+    }
+    if(score > 0) commands.push({ ...c, id, score });
+  }
+  commands.sort((a,b) => b.score - a.score);
+
+  // 4. DECKS — decklists that contain this card
+  const refDecks = deckCoIndex[card.id] || [];
+
+  // 5. CO-OCCURRENCE — other cards that appear in those same decks
+  const coMap = new Map();
+  for(const { deck } of refDecks) {
+    for(const entry of (deck.cards || [])) {
+      if(entry.id === card.id) continue;
+      coMap.set(entry.id, (coMap.get(entry.id) || 0) + 1);
+    }
+  }
+  const coCards = [...coMap.entries()]
+    .filter(([id]) => !synCards.find(c => c.id === id)) // don't duplicate
+    .sort(([,a],[,b]) => b - a)
+    .slice(0, 12)
+    .map(([id, cnt]) => ({ ...cards[id], id, coCount: cnt }));
+
+  // ---- Render ----
+  panel.innerHTML = '';
+
+  // Section: Synergy Units
+  panel.appendChild(renderCardSection(
+    '⚡', 'Synergy Units',
+    `Cards sharing ${traits.length ? traits.join(', ') : 'keywords'} with this card`,
+    synCards.slice(0, 20),
+    synCards.length,
+    c => `${(c.traits || []).filter(t => traits.includes(t)).join(' · ')}`,
+    true, 8
+  ));
+
+  // Section: Pilots / Links
+  if(linkedPilots.length || lt) {
+    panel.appendChild(renderCardSection(
+      '👤', 'Pilots & Links',
+      lt ? `Cards that link with this unit (${lt}: ${lv})` : 'No link requirement',
+      linkedPilots.slice(0, 10),
+      linkedPilots.length
+    ));
+  }
+
+  // Section: Command Support
+  panel.appendChild(renderCardSection(
+    '📜', 'Command & Base Support',
+    'Commands and Bases that synergize with this card\'s traits',
+    commands.slice(0, 10),
+    commands.length,
+    c => c.type
+  ));
+
+  // Section: Co-played Cards
+  if(coCards.length) {
+    panel.appendChild(renderCardSection(
+      '🔗', 'Commonly Played Together',
+      `Cards that appear in the same decklists as this card`,
+      coCards.slice(0, 10),
+      coCards.length,
+      c => `Appears in ${c.coCount} deck${c.coCount !== 1 ? 's' : ''} together`
+    ));
+  }
+
+  // Section: Reference Decks
+  panel.appendChild(renderDeckSection(refDecks));
+}
+
+// ==============================
+// IMPROVE A DECK RESULTS
+// ==============================
+function buildDeckPicker() {
+  const sel = document.getElementById('deckSelect');
+  sel.innerHTML = '<option value="">— choose a deck —</option>';
+
+  const sorted = [...decks].sort((a,b) => a.name.localeCompare(b.name));
+  for(const deck of sorted) {
+    const opt = document.createElement('option');
+    opt.value = deck.name;
+    opt.textContent = `${deck.name} (${deck.colors || '?'})`;
+    sel.appendChild(opt);
+  }
+
+  sel.addEventListener('change', () => {
+    if(sel.value) showImproveResults(sel.value);
+    else resetResults();
+  });
+
+  buildCardList(); // also build card list here (data is ready)
+}
+
+function showImproveResults(deckName) {
+  const deck = decks.find(d => d.name === deckName);
+  if(!deck) return;
+
+  // Show deck summary in left panel
+  const deckCards = (deck.cards || []).map(e => ({ ...cards[e.id], id: e.id, qty: e.qty }));
+  const allTraits = new Set();
+  const allKeywords = new Set();
+  const deckCardIds = new Set((deck.cards || []).map(e => e.id));
+
+  for(const e of deck.cards || []) {
+    const c = cards[e.id];
+    if(!c) continue;
+    for(const t of (c.traits || [])) allTraits.add(t);
+    for(const k of (c.keywords || [])) allKeywords.add(k.replace(/\s+\d+$/, '').trim());
+  }
+
+  const traitPills = [...allTraits].map(t =>
+    `<span class="trait-pill">${t}</span>`).join('');
+
+  document.getElementById('deckSummary').className = 'deck-summary visible';
+  document.getElementById('deckSummary').innerHTML = `
+    <div class="ds-name">${deck.name}</div>
+    <div class="ds-meta">${deck.colors || ''} · ${deck.archetype || ''} · ${deck.card_count || 0} cards · ${deck.format || ''}</div>
+    <div class="trait-pills">${traitPills}</div>
+  `;
+
+  const panel = document.getElementById('resultsPanel');
+  panel.innerHTML = '';
+
+  // 1. GD06 UPGRADES — GD06 cards with matching traits not in deck
+  const gd06Upgrades = [];
+  for(const [id, c] of Object.entries(cards)) {
+    if(!id.startsWith('GD06-')) continue;
+    if(deckCardIds.has(id)) continue;
+    if(!(c.traits || []).length) continue; // skip cards with no data
+    let score = 0;
+    for(const t of (c.traits || [])) {
+      if(allTraits.has(t)) score += 3;
+    }
+    for(const k of (c.keywords || []).map(k => k.replace(/\s+\d+$/, '').trim())) {
+      if(allKeywords.has(k)) score += 1;
+    }
+    if(score > 0) gd06Upgrades.push({ ...c, id, score });
+  }
+  gd06Upgrades.sort((a,b) => b.score - a.score);
+
+  panel.appendChild(renderCardSection(
+    '✨', 'GD06 Upgrade Candidates',
+    'Stardust Trails cards that share traits with this deck',
+    gd06Upgrades.slice(0, 12),
+    gd06Upgrades.length,
+    c => (c.traits || []).filter(t => allTraits.has(t)).join(' · '),
+    true, 6,
+    c => `<span class="cl-badge new">GD06</span>`
+  ));
+
+  // 2. COLLECTION FITS — cards you own with matching traits not in deck
+  const hasCollection = Object.values(collection).some(q => q > 0);
+  if(hasCollection) {
+    const collFits = [];
+    for(const [id, qty] of Object.entries(collection)) {
+      if(!qty) continue;
+      if(deckCardIds.has(id)) continue;
+      if(id.startsWith('GD06-')) continue; // covered above
+      const c = cards[id];
+      if(!c) continue;
+      let score = 0;
+      for(const t of (c.traits || [])) {
+        if(allTraits.has(t)) score += 2;
+      }
+      for(const k of (c.keywords || []).map(k => k.replace(/\s+\d+$/, '').trim())) {
+        if(allKeywords.has(k)) score += 1;
+      }
+      if(score > 0) collFits.push({ ...c, id, score, ownedQty: qty });
+    }
+    collFits.sort((a,b) => b.score - a.score);
+
+    panel.appendChild(renderCardSection(
+      '📦', 'Cards You Own That Fit',
+      'Cards in your collection that match this deck\'s traits',
+      collFits.slice(0, 12),
+      collFits.length,
+      c => (c.traits || []).filter(t => allTraits.has(t)).join(' · '),
+      true, 6,
+      c => `<span class="cl-badge owned">×${c.ownedQty} owned</span>`
+    ));
+  }
+
+  // 3. CARDS IN DECK — with collection status
+  const deckWithOwnership = deckCards.map(c => ({
+    ...c,
+    ownedQty: collection[c.id] || 0,
+    requiredQty: c.qty
+  })).sort((a,b) => {
+    const aHas = a.ownedQty >= a.requiredQty;
+    const bHas = b.ownedQty >= b.requiredQty;
+    if(aHas !== bHas) return aHas ? 1 : -1; // missing first
+    return a.id.localeCompare(b.id);
+  });
+
+  const missingCount = deckWithOwnership.filter(c => c.ownedQty < c.requiredQty).length;
+  panel.appendChild(renderDeckCardList(deck, deckWithOwnership, missingCount));
+}
+
+// ==============================
+// RENDER HELPERS
+// ==============================
+function ownedBadge(id, requiredQty = 1) {
+  const qty = collection[id] || 0;
+  if(!Object.values(collection).some(q => q > 0)) return '';
+  if(qty >= requiredQty) return `<span class="cl-badge owned">×${qty} owned</span>`;
+  if(qty > 0) return `<span class="cl-badge qty">×${qty}</span>`;
+  return `<span class="cl-badge missing">missing</span>`;
+}
+
+function renderCardSection(icon, label, subtitle, cardArr, total, subFn, showOwned = true, initialCount = 8, extraBadgeFn = null) {
+  const block = document.createElement('div');
+  block.className = 'section-block';
+
+  const hasMore = cardArr.length > initialCount;
+  const displayCards = cardArr.slice(0, initialCount);
+
+  if(!cardArr.length) {
+    block.innerHTML = `
+      <div class="section-head">
+        <span class="section-icon">${icon}</span>
+        <span class="section-label">${label}</span>
+        <span class="section-count">0</span>
+      </div>
+      <div class="empty-state" style="padding:20px">No matches found</div>`;
+    return block;
+  }
+
+  const rows = displayCards.map(c => {
+    const sub = subFn ? subFn(c) : '';
+    const badges = [
+      showOwned ? ownedBadge(c.id, c.qty || 1) : '',
+      extraBadgeFn ? extraBadgeFn(c) : ''
+    ].filter(Boolean).join('');
+
+    return `<div class="cl-item">
+      <span class="cl-id">${c.id}</span>
+      <div class="cl-info">
+        <div class="cl-name">${c.name || c.id}</div>
+        ${sub ? `<div class="cl-sub">${sub}</div>` : ''}
+      </div>
+      <div class="cl-badges">${badges}</div>
+    </div>`;
+  }).join('');
+
+  block.innerHTML = `
+    <div class="section-head">
+      <span class="section-icon">${icon}</span>
+      <span class="section-label">${label}</span>
+      <span class="section-count">${total}</span>
+    </div>
+    <div class="card-list" id="list-${label.replace(/\W/g,'_')}">${rows}</div>
+    ${hasMore ? `<div class="show-more-wrap">
+      <button class="show-more-btn" data-full='${JSON.stringify(cardArr.map(c=>c.id))}' data-label="${label}" data-showowned="${showOwned}" data-subfn="${subFn ? subFn.toString() : ''}">
+        Show ${total - initialCount} more
+      </button></div>` : ''}`;
+
+  if(hasMore) {
+    block.querySelector('.show-more-btn').addEventListener('click', function() {
+      const listEl = block.querySelector('.card-list');
+      const allIds = JSON.parse(this.dataset.full);
+      const showOwnedB = this.dataset.showowned === 'true';
+
+      listEl.innerHTML = allIds.map(id => {
+        const c = cardArr.find(cc => cc.id === id) || { ...cards[id], id };
+        const sub = subFn ? subFn(c) : '';
+        const badges = [showOwnedB ? ownedBadge(id, c.qty || 1) : ''].filter(Boolean).join('');
+        return `<div class="cl-item">
+          <span class="cl-id">${id}</span>
+          <div class="cl-info">
+            <div class="cl-name">${c.name || id}</div>
+            ${sub ? `<div class="cl-sub">${sub}</div>` : ''}
+          </div>
+          <div class="cl-badges">${badges}</div>
+        </div>`;
+      }).join('');
+
+      this.closest('.show-more-wrap').remove();
+    });
+  }
+
+  return block;
+}
+
+function renderDeckSection(refDecks) {
+  const block = document.createElement('div');
+  block.className = 'section-block';
+
+  const head = `<div class="section-head">
+    <span class="section-icon">🗂️</span>
+    <span class="section-label">Reference Decks</span>
+    <span class="section-count">${refDecks.length}</span>
+  </div>`;
+
+  if(!refDecks.length) {
+    block.innerHTML = head + `<div class="empty-state" style="padding:20px">No decks in database run this card</div>`;
+    return block;
+  }
+
+  const rows = refDecks.map(({ deck, qty }) => `
+    <div class="deck-item">
+      <div>
+        <div class="deck-name">${deck.name}</div>
+        <div class="deck-meta">${deck.colors || ''} · ${deck.archetype || ''} · ${deck.format || ''}</div>
+      </div>
+      <span class="deck-copies">×${qty}</span>
+    </div>`).join('');
+
+  block.innerHTML = head + rows;
+  return block;
+}
+
+function renderDeckCardList(deck, deckCards, missingCount) {
+  const block = document.createElement('div');
+  block.className = 'section-block';
+
+  const hasCollection = Object.values(collection).some(q => q > 0);
+  const countLabel = hasCollection
+    ? `${missingCount > 0 ? missingCount + ' missing' : 'All owned'}`
+    : `${deckCards.length} cards`;
+
+  block.innerHTML = `<div class="section-head">
+    <span class="section-icon">📋</span>
+    <span class="section-label">Deck Card List</span>
+    <span class="section-count">${countLabel}</span>
+  </div>
+  <div class="card-list">
+    ${deckCards.map(c => {
+      const hasEnough = !hasCollection || c.ownedQty >= c.requiredQty;
+      const badge = hasCollection
+        ? (c.ownedQty >= c.requiredQty
+            ? `<span class="cl-badge owned">×${c.ownedQty}</span>`
+            : c.ownedQty > 0
+              ? `<span class="cl-badge qty">×${c.ownedQty}/×${c.requiredQty}</span>`
+              : `<span class="cl-badge missing">need ×${c.requiredQty}</span>`)
+        : `<span class="cl-badge qty">×${c.requiredQty}</span>`;
+      return `<div class="cl-item">
+        <span class="cl-id">${c.id}</span>
+        <div class="cl-info">
+          <div class="cl-name">${c.name || c.id}</div>
+          <div class="cl-sub">${(c.traits || []).join(' · ')}</div>
+        </div>
+        <div class="cl-badges">${badge}</div>
+      </div>`;
+    }).join('')}
+  </div>`;
+
+  return block;
+}
+
+// ==============================
+// INIT
+// ==============================
+loadData();
+</script>
+</body>
+</html>
