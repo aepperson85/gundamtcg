@@ -19401,7 +19401,8 @@
     ],
     "link_type": "Pilot",
     "link_value": "Kou Uraki",
-    "effect": "Once per Turn: When this Unit is attacked, draw 1 card.\nDuring Pair: This Unit gains High-Maneuver. (This Unit can't be blocked.)"
+    "effect": "Once per Turn: When this Unit is attacked, draw 1 card.\nDuring Pair: This Unit gains High-Maneuver. (This Unit can't be blocked.)",
+    "zone": "Space Earth"
   },
   "GD06-002": {
     "id": "GD06-002",
@@ -19422,7 +19423,8 @@
     "keywords": [],
     "link_type": "Pilot",
     "link_value": "Athrun Zala",
-    "effect": "Once per Turn: During your turn, when this Unit destroys an enemy card with battle damage, choose one of your (Orb) Units; it recovers 3 HP.\nDeploy: You may choose 3 Unit cards from your trash and exile them. If you do, choose one active enemy Unit and return it to its owner's hand."
+    "effect": "Once per Turn: During your turn, when this Unit destroys an enemy card with battle damage, choose one of your (Orb) Units; it recovers 3 HP.\nDeploy: You may choose 3 Unit cards from your trash and exile them. If you do, choose one active enemy Unit and return it to its owner's hand.",
+    "zone": "Space Earth"
   },
   "GD06-003": {
     "id": "GD06-003",
@@ -19443,7 +19445,8 @@
     "keywords": [],
     "link_type": "Pilot",
     "link_value": "Amate Yuzuriha",
-    "effect": "Constant: Increase this Unit's AP by an amount equal to the number of cards in your hand.\nAttack: If another friendly (Alphacide) Unit is in play and you have 5 or fewer cards in your hand, draw 1."
+    "effect": "Constant: Increase this Unit's AP by an amount equal to the number of cards in your hand.\nAttack: If another friendly (Alphacide) Unit is in play and you have 5 or fewer cards in your hand, draw 1.",
+    "zone": "Space Earth"
   },
   "GD06-004": {
     "id": "GD06-004",
@@ -19458,11 +19461,15 @@
     "cost": 2,
     "ap": 4,
     "hp": 3,
-    "traits": [],
+    "traits": [
+      "Earth Federation",
+      "Albion Squad"
+    ],
     "keywords": [],
-    "link_type": "",
-    "link_value": "",
-    "effect": ""
+    "link_type": "Pilot",
+    "link_value": "Kou Uraki",
+    "effect": "During Link, Destroyed: Return the Pilot card from this Pair to its owner's hand. Then discard 1 card.",
+    "zone": "Earth"
   },
   "GD06-005": {
     "id": "GD06-005",
@@ -19477,11 +19484,14 @@
     "cost": 5,
     "ap": 5,
     "hp": 4,
-    "traits": [],
+    "traits": [
+      "Orb"
+    ],
     "keywords": [],
-    "link_type": "",
-    "link_value": "",
-    "effect": ""
+    "link_type": "Pilot",
+    "link_value": "Mu La Flaga",
+    "effect": "Attack: Return 1 damaged enemy Unit with Lv.5 or lower to its owner's hand.",
+    "zone": "Space Earth"
   },
   "GD06-006": {
     "id": "GD06-006",
@@ -19502,7 +19512,8 @@
     "keywords": [],
     "link_type": "Pilot",
     "link_value": "Amate Yuzuriha",
-    "effect": "Deploy: If another friendly (Alphacide) Unit is in play, you may return one enemy Unit with 3 or less HP to its owner's hand."
+    "effect": "Deploy: If another friendly (Alphacide) Unit is in play, you may return one enemy Unit with 3 or less HP to its owner's hand.",
+    "zone": "Space Earth"
   },
   "GD06-007": {
     "id": "GD06-007",
@@ -19517,11 +19528,16 @@
     "cost": 5,
     "ap": 4,
     "hp": 6,
-    "traits": [],
-    "keywords": [],
-    "link_type": "",
-    "link_value": "",
-    "effect": ""
+    "traits": [
+      "Zeon"
+    ],
+    "keywords": [
+      "Repair 2"
+    ],
+    "link_type": "Pilot",
+    "link_value": "Challia Bull",
+    "effect": "Repair 2. (At the end of your turn, this Unit recovers 2 HP.)\nDeploy: Deal 2 damage to 1 rested enemy Unit.",
+    "zone": "Space"
   },
   "GD06-008": {
     "id": "GD06-008",
@@ -19536,11 +19552,14 @@
     "cost": 2,
     "ap": 2,
     "hp": 4,
-    "traits": [],
+    "traits": [
+      "Earth Federation"
+    ],
     "keywords": [],
     "link_type": "",
     "link_value": "",
-    "effect": ""
+    "effect": "Attack: If an (Earth Federation) Base is in play, this Unit gets AP+2 during this battle.",
+    "zone": "Space Earth"
   },
   "GD06-009": {
     "id": "GD06-009",
@@ -19555,11 +19574,15 @@
     "cost": 2,
     "ap": 2,
     "hp": 4,
-    "traits": [],
+    "traits": [
+      "Earth Federation",
+      "Albion Squad"
+    ],
     "keywords": [],
-    "link_type": "",
-    "link_value": "",
-    "effect": ""
+    "link_type": "Trait",
+    "link_value": "Albion Squad",
+    "effect": "Deploy: Return 1 enemy Unit with 1 HP to its owner's hand.",
+    "zone": "Space Earth"
   },
   "GD06-010": {
     "id": "GD06-010",
@@ -19574,11 +19597,15 @@
     "cost": 2,
     "ap": 2,
     "hp": 3,
-    "traits": [],
+    "traits": [
+      "Earth Federation",
+      "Albion Squad"
+    ],
     "keywords": [],
-    "link_type": "",
-    "link_value": "",
-    "effect": ""
+    "link_type": "Trait",
+    "link_value": "Albion Squad",
+    "effect": "When Linked: Draw 1 card.",
+    "zone": "Space Earth"
   },
   "GD06-011": {
     "id": "GD06-011",
@@ -19594,10 +19621,13 @@
     "ap": 4,
     "hp": 4,
     "traits": [],
-    "keywords": [],
-    "link_type": "",
-    "link_value": "",
-    "effect": ""
+    "keywords": [
+      "Repair 1"
+    ],
+    "link_type": "Trait",
+    "link_value": "Newtype",
+    "effect": "When Linked: All your Units gain Repair 1 during this turn. (At the end of your turn, those Units recover 1 HP.)",
+    "zone": "Space Earth"
   },
   "GD06-012": {
     "id": "GD06-012",
@@ -19612,11 +19642,15 @@
     "cost": 2,
     "ap": 3,
     "hp": 4,
-    "traits": [],
+    "traits": [
+      "Zeon",
+      "Marine"
+    ],
     "keywords": [],
-    "link_type": "",
-    "link_value": "",
-    "effect": ""
+    "link_type": "Trait",
+    "link_value": "Zeon",
+    "effect": "",
+    "zone": "Earth"
   },
   "GD06-013": {
     "id": "GD06-013",
@@ -19631,11 +19665,14 @@
     "cost": 1,
     "ap": 1,
     "hp": 2,
-    "traits": [],
+    "traits": [
+      "Earth Federation"
+    ],
     "keywords": [],
     "link_type": "",
     "link_value": "",
-    "effect": ""
+    "effect": "",
+    "zone": "Space Earth"
   },
   "GD06-014": {
     "id": "GD06-014",
@@ -19650,11 +19687,16 @@
     "cost": 1,
     "ap": 2,
     "hp": 1,
-    "traits": [],
-    "keywords": [],
+    "traits": [
+      "Earth Federation"
+    ],
+    "keywords": [
+      "Blocker"
+    ],
     "link_type": "",
     "link_value": "",
-    "effect": ""
+    "effect": "While 3 or more enemy Units are in play, this Unit gains Blocker. (Rest this Unit to change the attack target to it.)",
+    "zone": "Space Earth"
   },
   "GD06-015": {
     "id": "GD06-015",
@@ -19669,11 +19711,16 @@
     "cost": 3,
     "ap": 3,
     "hp": 5,
-    "traits": [],
-    "keywords": [],
-    "link_type": "",
-    "link_value": "",
-    "effect": ""
+    "traits": [
+      "Orb"
+    ],
+    "keywords": [
+      "Blocker"
+    ],
+    "link_type": "Pilot",
+    "link_value": "Andrew Waldfeld",
+    "effect": "During Pair･(Orb) Pilot: This Unit gains Blocker. (Rest this Unit to change the attack target to it.)",
+    "zone": "Space Earth"
   },
   "GD06-016": {
     "id": "GD06-016",
@@ -19694,7 +19741,8 @@
     "keywords": [],
     "link_type": "Trait",
     "link_value": "Orb",
-    "effect": ""
+    "effect": "",
+    "zone": "Space Earth"
   },
   "GD06-017": {
     "id": "GD06-017",
@@ -19709,11 +19757,16 @@
     "cost": 2,
     "ap": 2,
     "hp": 4,
-    "traits": [],
-    "keywords": [],
-    "link_type": "",
-    "link_value": "",
-    "effect": ""
+    "traits": [
+      "Alphacide"
+    ],
+    "keywords": [
+      "Blocker"
+    ],
+    "link_type": "Pilot",
+    "link_value": "Amate Yuzuriha (Machu)",
+    "effect": "While another friendly (Alphacide) Unit is in play, this Unit gains Blocker. (Rest this Unit to change the attack target to it.)",
+    "zone": "Space Earth"
   },
   "GD06-018": {
     "id": "GD06-018",
@@ -19728,11 +19781,16 @@
     "cost": 2,
     "ap": 3,
     "hp": 2,
-    "traits": [],
-    "keywords": [],
-    "link_type": "",
-    "link_value": "",
-    "effect": ""
+    "traits": [
+      "Neo Zeon"
+    ],
+    "keywords": [
+      "Breach 1"
+    ],
+    "link_type": "Pilot",
+    "link_value": "Elpeo Ple",
+    "effect": "Breach 1. (During your turn, when this Unit destroys an enemy Unit with battle damage, deal 1 damage to the first card in the opponent's shield.)\nActivate·Action, Once per Turn: Choose 1 of your (Neo Zeon) or (Long-Range Weapon) Units, or 1 of your (Neo Zeon) Bases. During that battle, battle damage this Unit would receive is dealt to the chosen Unit or Base instead.",
+    "zone": "Space Earth"
   },
   "GD06-019": {
     "id": "GD06-019",
@@ -19747,11 +19805,14 @@
     "cost": 7,
     "ap": 5,
     "hp": 6,
-    "traits": [],
+    "traits": [
+      "Ghingnham Fleet"
+    ],
     "keywords": [],
-    "link_type": "",
-    "link_value": "",
-    "effect": ""
+    "link_type": "Pilot",
+    "link_value": "Gym Ghingnham",
+    "effect": "Enemy Units choose one of your rested Unit tokens as their attack target if possible when attacking.\nAttack: If you have no (Ghingnham Fleet) Unit tokens in play, deploy 1 rested [Turn X (Arms)] Unit token and 1 rested [Turn X (Legs)] Unit token.",
+    "zone": "Space Earth"
   },
   "GD06-020": {
     "id": "GD06-020",
@@ -19766,11 +19827,14 @@
     "cost": 3,
     "ap": 3,
     "hp": 4,
-    "traits": [],
+    "traits": [
+      "Neo Zeon"
+    ],
     "keywords": [],
-    "link_type": "",
-    "link_value": "",
-    "effect": ""
+    "link_type": "Pilot",
+    "link_value": "Mashymre Cello",
+    "effect": "During your turn, when one of your (Neo Zeon) Units destroys an enemy card with damage, this Unit recovers 1 HP.",
+    "zone": "Space Earth"
   },
   "GD06-021": {
     "id": "GD06-021",
@@ -19785,11 +19849,14 @@
     "cost": 3,
     "ap": 2,
     "hp": 2,
-    "traits": [],
+    "traits": [
+      "Ghingnham Fleet"
+    ],
     "keywords": [],
-    "link_type": "",
-    "link_value": "",
-    "effect": ""
+    "link_type": "Pilot",
+    "link_value": "Gym Ghingnham",
+    "effect": "Deploy: Choose 1 of your Unit tokens. Deploy 1 rested Unit token of the same kind.",
+    "zone": "Space Earth"
   },
   "GD06-022": {
     "id": "GD06-022",
@@ -19804,11 +19871,14 @@
     "cost": 4,
     "ap": 4,
     "hp": 4,
-    "traits": [],
+    "traits": [
+      "Ghingnham Fleet"
+    ],
     "keywords": [],
-    "link_type": "",
-    "link_value": "",
-    "effect": ""
+    "link_type": "Trait",
+    "link_value": "Moonrace",
+    "effect": "When Linked: Choose 1 enemy Unit with 3 or less AP. Begin a battle between this Unit and it and only perform the damage step.",
+    "zone": "Space Earth"
   },
   "GD06-023": {
     "id": "GD06-023",
@@ -19880,11 +19950,16 @@
     "cost": 3,
     "ap": 3,
     "hp": 4,
-    "traits": [],
-    "keywords": [],
-    "link_type": "",
-    "link_value": "",
-    "effect": ""
+    "traits": [
+      "Ghingnham Fleet"
+    ],
+    "keywords": [
+      "Repair"
+    ],
+    "link_type": "Trait",
+    "link_value": "Moonrace",
+    "effect": "Attack: If you have 3 or more other (Ghingnham Fleet) or (Long-Range Weapon) Units in play, choose 1 of your Units. It gets AP+1 and Repair 2 during this turn. (At the end of your turn, this Unit recovers 2 HP.)",
+    "zone": "Space Earth"
   },
   "GD06-027": {
     "id": "GD06-027",
@@ -20020,7 +20095,8 @@
     "keywords": [],
     "link_type": "Pilot",
     "link_value": "Judau Ashta",
-    "effect": "Constant: Your (AEUG) cards deal 1 extra damage to enemy Units.\nDeploy: Deal 2 damage to all enemy Units."
+    "effect": "Constant: Your (AEUG) cards deal 1 extra damage to enemy Units.\nDeploy: Deal 2 damage to all enemy Units.",
+    "zone": "Space Earth"
   },
   "GD06-034": {
     "id": "GD06-034",
@@ -20593,7 +20669,8 @@
     "keywords": [],
     "link_type": "",
     "link_value": "",
-    "effect": ""
+    "effect": "",
+    "zone": "Space Earth"
   },
   "GD06-064": {
     "id": "GD06-064",
@@ -20617,7 +20694,8 @@
     ],
     "link_type": "Pilot",
     "link_value": "Chang Wufei",
-    "effect": "Blocker: Rest this Unit to change the attack target to it.\nConstant: While an enemy Unit at Lv.5 or higher is in play, this Unit gets +3 AP."
+    "effect": "Blocker: Rest this Unit to change the attack target to it.\nConstant: While an enemy Unit at Lv.5 or higher is in play, this Unit gets AP+3.",
+    "zone": "Space Earth"
   },
   "GD06-065": {
     "id": "GD06-065",
@@ -20640,7 +20718,8 @@
     ],
     "link_type": "Pilot",
     "link_value": "Harry Ord",
-    "effect": "Blocker: Rest this Unit to change the attack target to it.\nOnce per Turn: During your Main Phase, pay 4 to set all your (Dianna Counter) and (Militia) Units with Blocker as active. They cannot attack that turn."
+    "effect": "Blocker: Rest this Unit to change the attack target to it.\nOnce per Turn: During your Main Phase, pay 4 to set all your (Dianna Counter) and (Militia) Units with Blocker as active. They cannot attack that turn.",
+    "zone": "Space Earth"
   },
   "GD06-066": {
     "id": "GD06-066",
@@ -20950,7 +21029,8 @@
     ],
     "link_type": "",
     "link_value": "",
-    "effect": "Burst: Add this card to your hand.\nConstant: While the paired Unit has the (Alphacide) trait, it gains Repair 2. (At the end of your turn, this Unit recovers 2 HP.)"
+    "effect": "Burst: Add this card to your hand.\nConstant: While the paired Unit has the (Alphacide) trait, it gains Repair 2. (At the end of your turn, this Unit recovers 2 HP.)",
+    "zone": ""
   },
   "GD06-082": {
     "id": "GD06-082",
@@ -20974,7 +21054,8 @@
     ],
     "link_type": "",
     "link_value": "",
-    "effect": "Burst: Add this card to your hand.\nWhen Paired: Choose 1 rested enemy Unit. Deal 1 damage to it."
+    "effect": "Burst: Add this card to your hand.\nWhen Paired: Choose 1 rested enemy Unit. Deal 1 damage to it.",
+    "zone": ""
   },
   "GD06-083": {
     "id": "GD06-083",
@@ -21094,7 +21175,8 @@
     ],
     "link_type": "",
     "link_value": "",
-    "effect": "Burst: Add this card to your hand.\nDuring Link, Destroyed: Choose one (Gundam Team) Unit card that is Lv.2 or lower from your trash and add it to your hand."
+    "effect": "Burst: Add this card to your hand.\nDuring Link, Destroyed: Choose one (Gundam Team) Unit card that is Lv.2 or lower from your trash and add it to your hand.",
+    "zone": ""
   },
   "GD06-089": {
     "id": "GD06-089",
@@ -21270,7 +21352,8 @@
     ],
     "link_type": "",
     "link_value": "",
-    "effect": "Burst: Add this card to your hand.\nOnce per Turn: When the paired Unit activates Blocker, set it as active."
+    "effect": "Burst: Add this card to your hand.\nOnce per Turn: When the paired Unit activates Blocker, set it as active.",
+    "zone": ""
   },
   "GD06-098": {
     "id": "GD06-098",
